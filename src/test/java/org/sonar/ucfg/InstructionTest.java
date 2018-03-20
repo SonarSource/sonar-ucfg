@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ucfg.ucfg;
+package org.sonar.ucfg;
 
 import org.sonar.ucfg.Expression;
 import org.sonar.ucfg.Instruction;
