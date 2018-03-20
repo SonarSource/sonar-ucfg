@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "location": {
+      "id": "location",
+      "description": "File location in the source program",
+      "type": "object",
+      "properties": {
+        "locFileId": { "type": "string" },
+        "locStartLine": { "type": "number" },
+        "locStartLineOffset": { "type": "number" },
+        "locEndLine": { "type": "number" },
+        "locEndLineOffset": { "type": "number" }
+      },
+      "required": ["locFileId","locStartLine","locStartLineOffset","locEndLine","locEndLineOffset"]
+    },
+    "expression": {
+      "id": "expression",
+      "description": "Expression in Universal CFG",
+      "type": "object",
+      "oneOf": [
+        {
+          "title": "var",
+          "type": "object",
+          "properties": {
+            "tag": { "enum": [ "Var" ] },
+            "varName": { "type": "string" }
+          },
+          "required": ["tag","varName"]
+        },
+        {
+          "title": "const",
+          "type": "object",
+          "properties": {
+            "tag": { "enum": [ "Const" ] },
+            "constVal": { "type": "string" }
+          },
+          "required": ["tag","constVal"]
+        }
+      ]
+    },
+    "terminator": {
+      "id": "terminator",
+      "description": "Terminator of Basic Blocks in Universal CFG",
+      "oneOf": [
+        {
+          "title": "jump",
+          "type": "object",
+          "properties": {
+            "tag": { "enum": ["Jump"] },
+            "jumpDest": {
+              "minItems": 1,
+              "type": "array",
+              "items": { "allOf": [ { "type": "string" } ] }
+            }
+          },
+          "required": ["tag","jumpDest"]
+        },
+        {
+          "title": "ret",
+          "type": "object",
+          "properties": {
+            "tag": { "enum": ["Ret"] },
+            "retLoc": { "$ref": "#/definitions/location" },
+            "retExpr": { "$ref": "#/definitions/expression" }
+          },
+          "required": ["tag","retLoc","retExpr"]
+        }
+      ]
+    },
+    "instruction": {
+      "id": "instruction",
+      "description": "Instructions in the Universal CFG",
+      "type": "object",
+      "properties": {
+        "instrLoc": { "$ref": "#/definitions/location" },
+        "instrLhs": { "type": "string" },
+        "instrMeth": { "type": "string" },
+        "instrArgs": {
+          "type": "array",
+          "items": { "allOf" : [ { "$ref": "#/definitions/expression" } ] }
+        }
+      },
+      "required": ["instrLoc","instrLhs","instrMeth","instrArgs"]
+    },
+    "basicblock": {
+      "id": "basicblock",
+      "description": "Basic Block in the Universal CFG",
+      "type": "object",
+      "properties": {
+        "bbId": { "type": "string" },
+        "bbLoc": { "$ref": "#/definitions/location" },
+        "bbInstr": {
+          "type": "array",
+          "items": { "allOf" : [ { "$ref": "#/definitions/instruction" } ] }
+        },
+        "bbTerm": { "$ref": "#/definitions/terminator" }
+      },
+      "required": ["bbId","bbLoc","bbInstr","bbTerm"]
+    }
+  },
+  "id": "ucfg",
+  "title": "Universal Control Flow Graph",
+  "type": "object",
+  "properties": {
+    "ucfgId": { "type": "string" },
+    "ucfgLoc": { "$ref": "#/definitions/location" },
+    "ucfgParams": {
+      "type": "array",
+      "items": { "allOf": [ { "type": "string" } ] }
+    },
+    "ucfgEntries": {
+      "type": "array",
+      "items": { "allOf": [ { "type": "string" } ] }
+    },
+    "ucfgBody": {
+      "type": "array",
+      "items": { "allOf": [ { "$ref": "#/definitions/basicblock" } ] }
+    }
+  },
+  "required": ["ucfgId","ucfgLoc","ucfgParams","ucfgEntries"]
+}

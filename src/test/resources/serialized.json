@@ -1,0 +1,140 @@
+{
+  "ucfgId": "A#method(Ljava/lang/String;)Ljava/lang/String;",
+  "ucfgLoc": {
+    "locFileId": "__unknown_file",
+    "locStartLine": 1,
+    "locStartLineOffset": 1,
+    "locEndLine": 1,
+    "locEndLineOffset": 1
+  },
+  "ucfgParams": [
+    "arg"
+  ],
+  "ucfgEntries": [
+    "1"
+  ],
+  "ucfgBody": [
+    {
+      "bbId": "1",
+      "bbLoc": {
+        "locFileId": "__unknown_file",
+        "locStartLine": 1,
+        "locStartLineOffset": 1,
+        "locEndLine": 1,
+        "locEndLineOffset": 1
+      },
+      "bbInstr": [
+        {
+          "instrLoc": {
+            "locFileId": "__unknown_file",
+            "locStartLine": 1,
+            "locStartLineOffset": 1,
+            "locEndLine": 1,
+            "locEndLineOffset": 1
+          },
+          "instrLhs": "var1",
+          "instrMeth": "fun",
+          "instrArgs": [
+            {
+              "tag": "Var",
+              "varName": "arg"
+            }
+          ]
+        }
+      ],
+      "bbTerm": {
+        "tag": "Jump",
+        "jumpDest": [
+          "2",
+          "3"
+        ]
+      }
+    },
+    {
+      "bbId": "2",
+      "bbLoc": {
+        "locFileId": "__unknown_file",
+        "locStartLine": 1,
+        "locStartLineOffset": 1,
+        "locEndLine": 1,
+        "locEndLineOffset": 1
+      },
+      "bbInstr": [
+        {
+          "instrLoc": {
+            "locFileId": "__unknown_file",
+            "locStartLine": 1,
+            "locStartLineOffset": 1,
+            "locEndLine": 1,
+            "locEndLineOffset": 1
+          },
+          "instrLhs": "var2",
+          "instrMeth": "fun",
+          "instrArgs": [
+            {
+              "tag": "Var",
+              "varName": "arg"
+            }
+          ]
+        }
+      ],
+      "bbTerm": {
+        "tag": "Ret",
+        "retLoc": {
+          "locFileId": "__unknown_file",
+          "locStartLine": 1,
+          "locStartLineOffset": 1,
+          "locEndLine": 1,
+          "locEndLineOffset": 1
+        },
+        "retExpr": {
+          "tag": "Var",
+          "varName": "arg"
+        }
+      }
+    },
+    {
+      "bbId": "3",
+      "bbLoc": {
+        "locFileId": "__unknown_file",
+        "locStartLine": 1,
+        "locStartLineOffset": 1,
+        "locEndLine": 1,
+        "locEndLineOffset": 1
+      },
+      "bbInstr": [
+        {
+          "instrLoc": {
+            "locFileId": "__unknown_file",
+            "locStartLine": 1,
+            "locStartLineOffset": 1,
+            "locEndLine": 1,
+            "locEndLineOffset": 1
+          },
+          "instrLhs": "var3",
+          "instrMeth": "fun",
+          "instrArgs": [
+            {
+              "tag": "Var",
+              "varName": "arg"
+            }
+          ]
+        }
+      ],
+      "bbTerm": {
+        "tag": "Ret",
+        "retLoc": {
+          "locFileId": "fileKey",
+          "locStartLine": 2,
+          "locStartLineOffset": 2,
+          "locEndLine": 2,
+          "locEndLineOffset": 10
+        },
+        "retExpr": {
+          "tag": "Var",
+          "varName": "var3"
+        }
+      }
+    }
+  ]
+}
