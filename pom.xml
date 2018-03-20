@@ -42,6 +42,12 @@
     <url>https://travis-ci.org/SonarSource/sonar-ucfg</url>
   </ciManagement>
 
+  <properties>
+    <gitRepositoryName>sonar-ucfg</gitRepositoryName>
+    <!-- Release: enable publication to Bintray -->
+    <artifactsToPublish>${project.groupId}:sonar-ucfg:jar</artifactsToPublish>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
