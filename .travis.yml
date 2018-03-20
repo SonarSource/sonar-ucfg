@@ -1,0 +1,30 @@
+language: java
+sudo: false
+
+git:
+  submodules: false
+
+install: true
+script: "./travis.sh"
+env:
+  - TEST=CI
+matrix:
+  fast_finish: true
+
+before_cache:
+  # remove all the artifacts that are installed in local repo because of mvn deploy
+  - rm -rf $HOME/.m2/repository/org/sonarsource/ucfg
+  - find $HOME/.m2 -name resolver-status.properties -exec rm {} \;
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+    - '$HOME/.sonar'
+    - '$HOME/jvm'
+    - '$HOME/maven'
+
+notifications:
+  email: false
+  webhooks:
+    urls:
+      - secure: "v9OMf6r6tN/0+eW3bYCD6aKj91z3yqRNmiHsay936E2FLshfNWqZaTWdD5mTD8bihDSIS3SoiQZB2zARWf9doRON/kVNMJTIwcRbbO40P0nMNhnShbNDqY9kCp9e0lqd6oW5mHAezZdrckOQ2M43eHfxOugLlvlHHh1yMPStMpSEI4B//Hng+rAy6cHWRmlBB9mW6aTlVSfsH6VT5gPgOV4JSOrw8H6udzD2bRtVudY1q26LZzZmUiI9AzzuvIyxPnq0PxiRRE8ZQA36rFuDmIy5ld/cgNIoZZdtY+HTNQbGqskZrQ/YqRSw2JJkxstlI4IeU0FAgq2l4CV3iMAbXmL7iGQngI5qPTLOuTn4v0jQoAr5EzRfWwXlZnYjAwpPURuO7zKJFO07pnJpNxgNEnFLi7LS7dqVYvzzsWdvwltbReeUApBpWQMOXE+H/UyqaQKkZZhCiGKJSPQWESNm273U8UPBVLHBRqhk6KU80pa6S4Ca+eWm56NH1ONFjnkZwLI8BD0tnDLtnuEoeTHS773rcX0DPGn1apXlkS233NC/pdVROSIbE6jMOlfaeNYtAOLQp/GDVRjj5jn4M5kJij4oR1LtcR92ZIW0Ivhpc5iqHcryxtjn2EjmE+6/Qzky3z8iwPl79pqOaDwomUqueCjyUD2XSk6c5bPwo1k5j84="
+    on_start: always
