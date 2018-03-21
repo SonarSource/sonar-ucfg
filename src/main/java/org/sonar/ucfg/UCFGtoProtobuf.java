@@ -19,18 +19,126 @@
  */
 package org.sonar.ucfg;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import org.sonar.ucfg.protobuf.Ucfg;
+
 public final class UCFGtoProtobuf {
 
   private UCFGtoProtobuf() {
     // empty constructor
   }
 
-  public static void toProtobufFile(UCFG ucfg, String filename) {
+  public static void toProtobufFile(UCFG ucfg, String filename) throws IOException {
+    Ucfg.UCFG protobufUCFG = Ucfg.UCFG.newBuilder()
+      .setMethodId(ucfg.methodId())
+      .setLocation(toProtobuf(ucfg.location()))
+      .addAllParameters(ucfg.parameters().stream().map(Expression.Variable::id).collect(Collectors.toList()))
+      .addAllUcfgEntries(ucfg.entryBlocks().stream().map(BasicBlock::label).map(Label::id).collect(Collectors.toList()))
+      .addAllBasicBlocks(ucfg.basicBlocks().values().stream().map(UCFGtoProtobuf::toProtobuf).collect(Collectors.toList()))
+      .build();
+    protobufUCFG.writeTo(new FileOutputStream(filename));
 
   }
 
-  public static UCFG fromProtobufFile(String filename) {
-    return null;
+  private static Ucfg.BasicBlock toProtobuf(BasicBlock basicBlock) {
+    Ucfg.BasicBlock.Builder builder = Ucfg.BasicBlock.newBuilder()
+      .setId(basicBlock.label().id())
+      .setLocation(toProtobuf(basicBlock.locationInFile()))
+      .addAllInstruction(basicBlock.calls().stream().map(UCFGtoProtobuf::toProtobuf).collect(Collectors.toList()));
+
+    if (basicBlock.terminator().type() == Instruction.InstructionType.RET) {
+      Instruction.Ret ret = (Instruction.Ret) basicBlock.terminator();
+      builder.setRet(Ucfg.Return.newBuilder().setLocation(toProtobuf(ret.location())).setReturnedExpression(toProtobuf(ret.getReturnedExpression())));
+    } else {
+      Ucfg.Jump.Builder jump = Ucfg.Jump.newBuilder();
+      Instruction.Jump terminator = (Instruction.Jump) basicBlock.terminator();
+      jump.addAllDestinations(terminator.destinations().stream().map(Label::id).collect(Collectors.toList()));
+      builder.setJump(jump);
+    }
+    return builder.build();
+  }
+
+  private static Ucfg.Instruction toProtobuf(Instruction.AssignCall assignCall) {
+    return Ucfg.Instruction.newBuilder().setLocation(toProtobuf(assignCall.location()))
+      .setLhs(assignCall.getLhs().id())
+      .setMethodId(assignCall.getMethodId())
+      .addAllArgs(assignCall.getArgExpressions().stream().map(UCFGtoProtobuf::toProtobuf).collect(Collectors.toList()))
+      .build();
+  }
+
+  private static Ucfg.Expression toProtobuf(Expression expression) {
+    Ucfg.Expression.Builder builder = Ucfg.Expression.newBuilder();
+    if (expression.isConstant()) {
+      builder.setConst(Ucfg.Constant.newBuilder().setValue(((Expression.Constant) expression).value()).build());
+    } else {
+      builder.setVar(Ucfg.Variable.newBuilder().setName(((Expression.Variable) expression).id()).build());
+    }
+    return builder.build();
+  }
+
+  private static Ucfg.Location toProtobuf(@Nullable LocationInFile locationInFile) {
+    if (locationInFile == null) {
+      return Ucfg.Location.getDefaultInstance();
+    }
+    return Ucfg.Location.newBuilder()
+      .setFileId(locationInFile.getFileId())
+      .setStartLine(locationInFile.getStartLine())
+      .setStartLineOffset(locationInFile.getStartLineOffset())
+      .setEndLine(locationInFile.getEndLine())
+      .setEndLineOffset(locationInFile.getEndLineOffset())
+      .build();
+  }
+
+  public static UCFG fromProtobufFile(String filename) throws IOException {
+    Ucfg.UCFG ucfg = Ucfg.UCFG.parseFrom(new FileInputStream(filename));
+    UCFGBuilder builder = UCFGBuilder.createUCFGForMethod(ucfg.getMethodId()).at(fromProtobuf(ucfg.getLocation()));
+    ucfg.getParametersList().forEach(pId -> builder.addMethodParam(UCFGBuilder.variableWithId(pId)));
+
+    Map<String, UCFGBuilder.BlockBuilder> blockById = ucfg.getBasicBlocksList().stream().collect(Collectors.toMap(Ucfg.BasicBlock::getId, UCFGtoProtobuf::fromProtobuf));
+    for (Map.Entry<String, UCFGBuilder.BlockBuilder> entry : blockById.entrySet()) {
+      if (ucfg.getUcfgEntriesList().contains(entry.getKey())) {
+        builder.addStartingBlock(entry.getValue());
+      } else {
+        builder.addBasicBlock(entry.getValue());
+      }
+    }
+
+    return builder.build();
+  }
+
+  private static UCFGBuilder.BlockBuilder fromProtobuf(Ucfg.BasicBlock bb) {
+    UCFGBuilder.BlockBuilder blockBuilder = UCFGBuilder.newBasicBlock(bb.getId(), fromProtobuf(bb.getLocation()));
+
+    bb.getInstructionList().forEach(
+      i -> blockBuilder.assignTo(UCFGBuilder.variableWithId(i.getLhs()),
+        UCFGBuilder.call(i.getMethodId()).withArgs(i.getArgsList().stream().map(UCFGtoProtobuf::fromProtobuf).toArray(Expression[]::new)),
+        fromProtobuf(i.getLocation())));
+
+    if(bb.hasJump()) {
+      Ucfg.Jump jump = bb.getJump();
+      jump.getDestinationsList().forEach(id -> blockBuilder.jumpTo(UCFGBuilder.createLabel(id)));
+    }
+    if(bb.hasRet()) {
+      Ucfg.Return ret = bb.getRet();
+      blockBuilder.ret(fromProtobuf(ret.getReturnedExpression()), fromProtobuf(ret.getLocation()));
+    }
+    return blockBuilder;
+  }
+
+  private static Expression fromProtobuf(Ucfg.Expression expr) {
+    if(expr.hasConst()) {
+      return UCFGBuilder.constant(expr.getConst().getValue());
+    }
+    return UCFGBuilder.variableWithId(expr.getVar().getName());
+  }
+
+  private static LocationInFile fromProtobuf(Ucfg.Location location) {
+    return new LocationInFile(location.getFileId(), location.getStartLine(), location.getStartLineOffset(), location.getEndLine(), location.getEndLineOffset());
   }
 
 
