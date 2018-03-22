@@ -39,7 +39,7 @@ class UCFGtoProtobufTest {
     Expression.Variable parameter1 = UCFGBuilder.variableWithId("parameter1");
     UCFGBuilder ucfgBuilder = UCFGBuilder.createUCFGForMethod("myMethod").addMethodParam(parameter1);
     Expression.Variable var1 = UCFGBuilder.variableWithId("var1");
-    ucfgBuilder.addStartingBlock(newBasicBlock("startLabel", new LocationInFile("fileKey", 1,1, 1,12))
+    ucfgBuilder.addStartingBlock(newBasicBlock("startLabel", null)
       .assignTo(var1, UCFGBuilder.call("__id").withArgs(parameter1), new LocationInFile("fileKey", 1,1, 1,12))
       .jumpTo(createLabel("label2"), createLabel("label3")));
     Expression.Variable var2 = variableWithId("var2");
@@ -64,7 +64,7 @@ class UCFGtoProtobufTest {
     assertThat(read_ucfg.basicBlocks().keySet()).containsExactlyElementsOf(ucfg.basicBlocks().keySet());
     assertThat(read_ucfg.basicBlocks().values()).containsExactlyElementsOf(ucfg.basicBlocks().values());
     assertThat(read_ucfg.basicBlocks().values().stream().map(BasicBlock::toString)).containsExactlyElementsOf(ucfg.basicBlocks().values().stream().map(BasicBlock::toString).collect(Collectors.toList()));
-
+    assertThat(read_ucfg.basicBlocks().values().stream().filter(bb->bb.locationInFile() == null).map(bb ->bb.label().id())).containsOnly("startLabel");
     file.delete();
   }
 }

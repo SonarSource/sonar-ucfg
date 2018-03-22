@@ -141,6 +141,9 @@ public final class UCFGtoProtobuf {
   }
 
   private static LocationInFile fromProtobuf(Ucfg.Location location) {
+    if(location.equals(Ucfg.Location.getDefaultInstance())) {
+      return null;
+    }
     return new LocationInFile(location.getFileId(), location.getStartLine(), location.getStartLineOffset(), location.getEndLine(), location.getEndLineOffset());
   }
 
