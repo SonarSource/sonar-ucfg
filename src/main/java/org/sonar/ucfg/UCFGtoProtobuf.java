@@ -38,10 +38,12 @@ public final class UCFGtoProtobuf {
       .setMethodId(ucfg.methodId())
       .setLocation(toProtobuf(ucfg.location()))
       .addAllParameters(ucfg.parameters().stream().map(Expression.Variable::id).collect(Collectors.toList()))
-      .addAllUcfgEntries(ucfg.entryBlocks().stream().map(BasicBlock::label).map(Label::id).collect(Collectors.toList()))
+      .addAllEntries(ucfg.entryBlocks().stream().map(BasicBlock::label).map(Label::id).collect(Collectors.toList()))
       .addAllBasicBlocks(ucfg.basicBlocks().values().stream().map(UCFGtoProtobuf::toProtobuf).collect(Collectors.toList()))
       .build();
-    protobufUCFG.writeTo(new FileOutputStream(filename));
+    try (FileOutputStream fos = new FileOutputStream(filename)) {
+      protobufUCFG.writeTo(fos);
+    }
 
   }
 
@@ -49,7 +51,7 @@ public final class UCFGtoProtobuf {
     Ucfg.BasicBlock.Builder builder = Ucfg.BasicBlock.newBuilder()
       .setId(basicBlock.label().id())
       .setLocation(toProtobuf(basicBlock.locationInFile()))
-      .addAllInstruction(basicBlock.calls().stream().map(UCFGtoProtobuf::toProtobuf).collect(Collectors.toList()));
+      .addAllInstructions(basicBlock.calls().stream().map(UCFGtoProtobuf::toProtobuf).collect(Collectors.toList()));
 
     if (basicBlock.terminator().type() == Instruction.InstructionType.RET) {
       Instruction.Ret ret = (Instruction.Ret) basicBlock.terminator();
@@ -65,7 +67,7 @@ public final class UCFGtoProtobuf {
 
   private static Ucfg.Instruction toProtobuf(Instruction.AssignCall assignCall) {
     return Ucfg.Instruction.newBuilder().setLocation(toProtobuf(assignCall.location()))
-      .setLhs(assignCall.getLhs().id())
+      .setVariable(assignCall.getLhs().id())
       .setMethodId(assignCall.getMethodId())
       .addAllArgs(assignCall.getArgExpressions().stream().map(UCFGtoProtobuf::toProtobuf).collect(Collectors.toList()))
       .build();
@@ -95,33 +97,34 @@ public final class UCFGtoProtobuf {
   }
 
   public static UCFG fromProtobufFile(String filename) throws IOException {
-    Ucfg.UCFG ucfg = Ucfg.UCFG.parseFrom(new FileInputStream(filename));
-    UCFGBuilder builder = UCFGBuilder.createUCFGForMethod(ucfg.getMethodId()).at(fromProtobuf(ucfg.getLocation()));
-    ucfg.getParametersList().forEach(pId -> builder.addMethodParam(UCFGBuilder.variableWithId(pId)));
+    try (FileInputStream fis = new FileInputStream(filename)) {
+      Ucfg.UCFG ucfg = Ucfg.UCFG.parseFrom(fis);
+      UCFGBuilder builder = UCFGBuilder.createUCFGForMethod(ucfg.getMethodId()).at(fromProtobuf(ucfg.getLocation()));
+      ucfg.getParametersList().forEach(pId -> builder.addMethodParam(UCFGBuilder.variableWithId(pId)));
 
-    Map<String, UCFGBuilder.BlockBuilder> blockById = ucfg.getBasicBlocksList().stream().collect(Collectors.toMap(Ucfg.BasicBlock::getId, UCFGtoProtobuf::fromProtobuf));
-    for (Map.Entry<String, UCFGBuilder.BlockBuilder> entry : blockById.entrySet()) {
-      if (ucfg.getUcfgEntriesList().contains(entry.getKey())) {
-        builder.addStartingBlock(entry.getValue());
-      } else {
-        builder.addBasicBlock(entry.getValue());
+      Map<String, UCFGBuilder.BlockBuilder> blockById = ucfg.getBasicBlocksList().stream().collect(Collectors.toMap(Ucfg.BasicBlock::getId, UCFGtoProtobuf::fromProtobuf));
+      for (Map.Entry<String, UCFGBuilder.BlockBuilder> entry : blockById.entrySet()) {
+        if (ucfg.getEntriesList().contains(entry.getKey())) {
+          builder.addStartingBlock(entry.getValue());
+        } else {
+          builder.addBasicBlock(entry.getValue());
+        }
       }
+      return builder.build();
     }
-
-    return builder.build();
   }
 
   private static UCFGBuilder.BlockBuilder fromProtobuf(Ucfg.BasicBlock bb) {
     UCFGBuilder.BlockBuilder blockBuilder = UCFGBuilder.newBasicBlock(bb.getId(), fromProtobuf(bb.getLocation()));
 
-    bb.getInstructionList().forEach(
-      i -> blockBuilder.assignTo(UCFGBuilder.variableWithId(i.getLhs()),
+    bb.getInstructionsList().forEach(
+      i -> blockBuilder.assignTo(UCFGBuilder.variableWithId(i.getVariable()),
         UCFGBuilder.call(i.getMethodId()).withArgs(i.getArgsList().stream().map(UCFGtoProtobuf::fromProtobuf).toArray(Expression[]::new)),
         fromProtobuf(i.getLocation())));
 
     if(bb.hasJump()) {
       Ucfg.Jump jump = bb.getJump();
-      jump.getDestinationsList().forEach(id -> blockBuilder.jumpTo(UCFGBuilder.createLabel(id)));
+      blockBuilder.jumpTo(jump.getDestinationsList().stream().map(UCFGBuilder::createLabel).toArray(Label[]::new));
     }
     if(bb.hasRet()) {
       Ucfg.Return ret = bb.getRet();

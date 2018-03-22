@@ -41,10 +41,13 @@ class UCFGtoProtobufTest {
     Expression.Variable var1 = UCFGBuilder.variableWithId("var1");
     ucfgBuilder.addStartingBlock(newBasicBlock("startLabel", new LocationInFile("fileKey", 1,1, 1,12))
       .assignTo(var1, UCFGBuilder.call("__id").withArgs(parameter1), new LocationInFile("fileKey", 1,1, 1,12))
-      .jumpTo(createLabel("label2")));
+      .jumpTo(createLabel("label2"), createLabel("label3")));
     Expression.Variable var2 = variableWithId("var2");
     ucfgBuilder.addBasicBlock(newBasicBlock("label2", new LocationInFile("fileKey", 2, 1, 2,12))
       .assignTo(var2,UCFGBuilder.call("__id").withArgs(constant("AConstant")), new LocationInFile("fileKey", 2, 1, 2,12))
+      .ret(var2));
+    ucfgBuilder.addBasicBlock(newBasicBlock("label3", new LocationInFile("fileKey", 3, 1, 3,12))
+      .assignTo(var2,UCFGBuilder.call("__id").withArgs(constant("AConstant")), new LocationInFile("fileKey", 3, 1, 3,12))
       .ret(var2));
     UCFG ucfg = ucfgBuilder.build();
 

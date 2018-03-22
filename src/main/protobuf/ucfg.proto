@@ -6,14 +6,14 @@ message UCFG {
     string methodId = 1;
     Location location = 2;
     repeated string parameters = 3;
-    repeated string ucfgEntries = 4;
+    repeated string entries = 4;
     repeated BasicBlock basicBlocks = 5;
 }
 
 message BasicBlock {
     string id = 1;
     Location location = 2;
-    repeated Instruction instruction = 3;
+    repeated Instruction instructions = 3;
     oneof terminator {
         Return ret = 4;
         Jump jump = 5;
@@ -22,7 +22,7 @@ message BasicBlock {
 
 message Instruction {
     Location location = 1;
-    string lhs = 2;
+    string variable = 2;
     string methodId = 3;
     repeated Expression args = 4;
 }
