@@ -58,7 +58,7 @@ class UCFGtoProtobufTest {
     UCFGtoProtobuf.toProtobufFile(ucfg, filename);
     assertThat(file).exists();
     assertThat(Files.size(file.toPath())).isGreaterThan(0);
-    UCFG read_ucfg = UCFGtoProtobuf.fromProtobufFile(filename);
+    UCFG read_ucfg = UCFGtoProtobuf.fromProtobufFile(file);
     assertThat(read_ucfg).isNotNull();
 
     assertThat(read_ucfg.basicBlocks().keySet()).containsExactlyElementsOf(ucfg.basicBlocks().keySet());

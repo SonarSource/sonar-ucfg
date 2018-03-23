@@ -19,6 +19,7 @@
  */
 package org.sonar.ucfg;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -95,23 +96,26 @@ public final class UCFGtoProtobuf {
       .setEndLineOffset(locationInFile.getEndLineOffset())
       .build();
   }
-
-  public static UCFG fromProtobufFile(String filename) throws IOException {
-    try (FileInputStream fis = new FileInputStream(filename)) {
-      Ucfg.UCFG ucfg = Ucfg.UCFG.parseFrom(fis);
-      UCFGBuilder builder = UCFGBuilder.createUCFGForMethod(ucfg.getMethodId()).at(fromProtobuf(ucfg.getLocation()));
-      ucfg.getParametersList().forEach(pId -> builder.addMethodParam(UCFGBuilder.variableWithId(pId)));
-
-      Map<String, UCFGBuilder.BlockBuilder> blockById = ucfg.getBasicBlocksList().stream().collect(Collectors.toMap(Ucfg.BasicBlock::getId, UCFGtoProtobuf::fromProtobuf));
-      for (Map.Entry<String, UCFGBuilder.BlockBuilder> entry : blockById.entrySet()) {
-        if (ucfg.getEntriesList().contains(entry.getKey())) {
-          builder.addStartingBlock(entry.getValue());
-        } else {
-          builder.addBasicBlock(entry.getValue());
-        }
-      }
-      return builder.build();
+  public static UCFG fromProtobufFile(File protobufFile) throws IOException {
+    try (FileInputStream fis = new FileInputStream(protobufFile)) {
+      return deserializeUcfg(fis);
     }
+  }
+
+  private static UCFG deserializeUcfg(FileInputStream fis) throws IOException {
+    Ucfg.UCFG ucfg = Ucfg.UCFG.parseFrom(fis);
+    UCFGBuilder builder = UCFGBuilder.createUCFGForMethod(ucfg.getMethodId()).at(fromProtobuf(ucfg.getLocation()));
+    ucfg.getParametersList().forEach(pId -> builder.addMethodParam(UCFGBuilder.variableWithId(pId)));
+
+    Map<String, UCFGBuilder.BlockBuilder> blockById = ucfg.getBasicBlocksList().stream().collect(Collectors.toMap(Ucfg.BasicBlock::getId, UCFGtoProtobuf::fromProtobuf));
+    for (Map.Entry<String, UCFGBuilder.BlockBuilder> entry : blockById.entrySet()) {
+      if (ucfg.getEntriesList().contains(entry.getKey())) {
+        builder.addStartingBlock(entry.getValue());
+      } else {
+        builder.addBasicBlock(entry.getValue());
+      }
+    }
+    return builder.build();
   }
 
   private static UCFGBuilder.BlockBuilder fromProtobuf(Ucfg.BasicBlock bb) {
