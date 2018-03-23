@@ -1,0 +1,60 @@
+syntax = "proto3";
+option java_package = "org.sonar.ucfg.protobuf";
+option optimize_for = SPEED;
+
+message UCFG {
+    string methodId = 1;
+    Location location = 2;
+    repeated string parameters = 3;
+    repeated string entries = 4;
+    repeated BasicBlock basicBlocks = 5;
+}
+
+message BasicBlock {
+    string id = 1;
+    Location location = 2;
+    repeated Instruction instructions = 3;
+    oneof terminator {
+        Return ret = 4;
+        Jump jump = 5;
+    }
+}
+
+message Instruction {
+    Location location = 1;
+    string variable = 2;
+    string methodId = 3;
+    repeated Expression args = 4;
+}
+
+message Return {
+    Location location = 1;
+    Expression returnedExpression = 2;
+}
+
+message Jump {
+    repeated string destinations = 1;
+}
+
+message Expression {
+    oneof expr {
+        Variable var = 1;
+        Constant const = 2;
+    }
+}
+
+message Variable {
+    string name = 1;
+}
+
+message Constant {
+    string value = 1;
+}
+
+message Location {
+    string fileId = 1;
+    int32 startLine = 2;
+    int32 startLineOffset = 3;
+    int32 endLine = 4;
+    int32 endLineOffset = 5;
+}
