@@ -19,7 +19,6 @@
  */
 package org.sonar.ucfg;
 
-import org.sonar.ucfg.Label;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,4 +31,10 @@ class LabelTest {
     assertThat(label.toString()).isEqualTo("  label 1:");
   }
 
+  @Test
+  void label_equality() {
+    Label label1 = new Label("1");
+    Label label2 = new Label("2");
+    assertThat(label1).isEqualTo(label1).isNotEqualTo(label2).isNotEqualTo(new Object()).isNotEqualTo(null);
+  }
 }
