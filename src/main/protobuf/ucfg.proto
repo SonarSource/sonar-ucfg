@@ -1,4 +1,5 @@
 syntax = "proto3";
+option csharp_namespace = "SonarAnalyzer.Protobuf.Ucfg";
 option java_package = "org.sonar.ucfg.protobuf";
 option optimize_for = SPEED;
 
