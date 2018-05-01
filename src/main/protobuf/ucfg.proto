@@ -53,6 +53,7 @@ message Constant {
 }
 
 message Location {
+    // fileId is the absolute path to the file
     string fileId = 1;
     int32 startLine = 2;
     int32 startLineOffset = 3;
