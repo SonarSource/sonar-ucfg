@@ -103,19 +103,25 @@ public final class UCFGtoProtobuf {
   }
 
   private static UCFG deserializeUcfg(FileInputStream fis) throws IOException {
-    Ucfg.UCFG ucfg = Ucfg.UCFG.parseFrom(fis);
-    UCFGBuilder builder = UCFGBuilder.createUCFGForMethod(ucfg.getMethodId()).at(fromProtobuf(ucfg.getLocation()));
-    ucfg.getParametersList().forEach(pId -> builder.addMethodParam(UCFGBuilder.variableWithId(pId)));
+    String methodId = "";
+    try {
+      Ucfg.UCFG ucfg = Ucfg.UCFG.parseFrom(fis);
+      methodId = ucfg.getMethodId();
+      UCFGBuilder builder = UCFGBuilder.createUCFGForMethod(methodId).at(fromProtobuf(ucfg.getLocation()));
+      ucfg.getParametersList().forEach(pId -> builder.addMethodParam(UCFGBuilder.variableWithId(pId)));
 
-    Map<String, UCFGBuilder.BlockBuilder> blockById = ucfg.getBasicBlocksList().stream().collect(Collectors.toMap(Ucfg.BasicBlock::getId, UCFGtoProtobuf::fromProtobuf));
-    for (Map.Entry<String, UCFGBuilder.BlockBuilder> entry : blockById.entrySet()) {
-      if (ucfg.getEntriesList().contains(entry.getKey())) {
-        builder.addStartingBlock(entry.getValue());
-      } else {
-        builder.addBasicBlock(entry.getValue());
+      Map<String, UCFGBuilder.BlockBuilder> blockById = ucfg.getBasicBlocksList().stream().collect(Collectors.toMap(Ucfg.BasicBlock::getId, UCFGtoProtobuf::fromProtobuf));
+      for (Map.Entry<String, UCFGBuilder.BlockBuilder> entry : blockById.entrySet()) {
+        if (ucfg.getEntriesList().contains(entry.getKey())) {
+          builder.addStartingBlock(entry.getValue());
+        } else {
+          builder.addBasicBlock(entry.getValue());
+        }
       }
+      return builder.build();
+    } catch (Exception e) {
+      throw new IllegalStateException("An error occured while deserializing UCFG for method "+methodId, e);
     }
-    return builder.build();
   }
 
   private static UCFGBuilder.BlockBuilder fromProtobuf(Ucfg.BasicBlock bb) {
