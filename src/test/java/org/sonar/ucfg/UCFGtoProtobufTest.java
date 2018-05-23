@@ -20,12 +20,15 @@
 package org.sonar.ucfg;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import org.sonar.ucfg.protobuf.Ucfg;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.sonar.ucfg.UCFGBuilder.constant;
 import static org.sonar.ucfg.UCFGBuilder.createLabel;
 import static org.sonar.ucfg.UCFGBuilder.newBasicBlock;
@@ -66,5 +69,27 @@ class UCFGtoProtobufTest {
     assertThat(read_ucfg.basicBlocks().values().stream().map(BasicBlock::toString)).containsExactlyElementsOf(ucfg.basicBlocks().values().stream().map(BasicBlock::toString).collect(Collectors.toList()));
     assertThat(read_ucfg.basicBlocks().values().stream().filter(bb->bb.locationInFile() == null).map(bb ->bb.label().id())).containsOnly("startLabel");
     file.delete();
+  }
+
+
+  @Test
+  void error_when_deserializing() throws IOException {
+    // construct a wrong ucfg
+    Ucfg.UCFG.Builder builder = Ucfg.UCFG.newBuilder().setMethodId("someMethodId.wrong");
+    builder.addBasicBlocks(builder.addBasicBlocksBuilder());
+    Ucfg.UCFG protobufUCFG = builder.build();
+    try (FileOutputStream fos = new FileOutputStream("serialized.wrong.pb")) {
+      protobufUCFG.writeTo(fos);
+    }
+
+    try {
+
+      UCFG read_ucfg = UCFGtoProtobuf.fromProtobufFile(new File("serialized.wrong.pb"));
+      fail("some error should have occured");
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("An error occured while deserializing UCFG for method someMethodId.wrong");
+    } catch (Exception e) {
+      fail("Wrong type of exception was thrown");
+    }
   }
 }
