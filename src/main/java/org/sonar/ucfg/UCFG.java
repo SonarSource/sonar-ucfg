@@ -19,7 +19,7 @@
  */
 package org.sonar.ucfg;
 
-import org.sonar.ucfg.util.WorkSet;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.sonar.ucfg.util.WorkSet;
 
 public class UCFG {
 
@@ -36,6 +37,7 @@ public class UCFG {
   private Map<Label, BasicBlock> nonRedundantGraph;
   private Set<BasicBlock> nonRedundantEntryBlocks;
   private LocationInFile location;
+  private boolean requiresDeadEnd = false;
 
   public UCFG(String methodId, List<Expression.Variable> parameters, Set<BasicBlock> basicBlocks, Set<BasicBlock> entryBlocks, LocationInFile location) {
     this.methodId = methodId;
@@ -66,6 +68,10 @@ public class UCFG {
       .collect(Collectors.toMap(Function.identity(), this::nonRedundantSuccessors));
     newSuccessors.forEach(BasicBlock::updateSuccs);
     nonRedundantGraph = newSuccessors.keySet().stream().collect(Collectors.toMap(BasicBlock::label, Function.identity()));
+    if (requiresDeadEnd) {
+      nonRedundantGraph.put(BasicBlock.DEAD_END.label(), BasicBlock.DEAD_END);
+      basicBlocks.put(BasicBlock.DEAD_END.label(), BasicBlock.DEAD_END);
+    }
     if(nonRedundantGraph.values().stream().anyMatch(BasicBlock::isRedundant)) {
       throw new IllegalStateException("Pruned graph should not contain any redundant blocks.");
     }
@@ -85,6 +91,11 @@ public class UCFG {
       } else {
         res.add(succ);
       }
+    }
+    if (!seen.isEmpty() && res.isEmpty()) {
+      // found a cycle where everything is redundant
+      this.requiresDeadEnd = true;
+      return Collections.singleton(BasicBlock.DEAD_END);
     }
     return res;
   }
