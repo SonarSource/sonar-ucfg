@@ -32,6 +32,19 @@ public class BasicBlock {
   private final LocationInFile loc;
   private Instruction.Terminator terminator;
 
+  private static final Label DEAD_END_LABEL = new Label("DEAD_END");
+  public static final BasicBlock DEAD_END = new BasicBlock(DEAD_END_LABEL, Collections.emptyList(), new Instruction.Jump(Collections.singletonList(DEAD_END_LABEL)), null) {
+    @Override
+    public boolean isRedundant() {
+      return false;
+    }
+
+    @Override
+    public void updateSuccs(Set<BasicBlock> successors) {
+      // Do not change the successors of DEAD_EAD, should always loop on itself only
+    }
+  };
+
   BasicBlock(Label label, List<Instruction.AssignCall> calls, Instruction.Terminator terminator, @Nullable LocationInFile loc) {
     this.label = label;
     this.calls = calls;

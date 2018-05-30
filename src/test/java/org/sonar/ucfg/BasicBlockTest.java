@@ -21,6 +21,7 @@ package org.sonar.ucfg;
 
 
 import java.util.Collections;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,5 +51,20 @@ class BasicBlockTest {
 
     BasicBlock b4 = new BasicBlock(new Label("label1"), Collections.singletonList(new Instruction.AssignCall(null, null, "foo", Collections.emptyList())), new Instruction.Ret(null, null), null);
     assertThat(b4.isRedundant()).isFalse();
+  }
+
+  @Test
+  void dead_end_is_not_redundant_but_cycling_and_not_modifiable() {
+    assertThat(BasicBlock.DEAD_END.isRedundant()).isFalse();
+    assertThat(BasicBlock.DEAD_END.successors()).containsOnly(BasicBlock.DEAD_END.label());
+    assertThat(BasicBlock.DEAD_END.locationInFile()).isNull();
+    assertThat(BasicBlock.DEAD_END.terminator().type()).isEqualTo(Instruction.InstructionType.JUMP);
+    assertThat(((Instruction.Jump) BasicBlock.DEAD_END.terminator()).destinations()).containsOnly(BasicBlock.DEAD_END.label());
+
+    Label newSuccessorLabel = new Label("1");
+    Set<BasicBlock> newSuccessors = Collections.singleton(new BasicBlock(newSuccessorLabel, Collections.emptyList(), new Instruction.Ret(null, null), null));
+    BasicBlock.DEAD_END.updateSuccs(newSuccessors);
+
+    assertThat(BasicBlock.DEAD_END.successors()).containsOnly(BasicBlock.DEAD_END.label());
   }
 }
