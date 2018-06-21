@@ -58,12 +58,14 @@ public abstract class Instruction {
     private final Expression.Variable lhs;
     private final String methodId;
     private final List<Expression> argExpressions;
+    private final int hash;
 
     public AssignCall(LocationInFile locationInFile, Expression.Variable lhs, String methodId, List<Expression> argExpressions) {
       super(InstructionType.CALL, locationInFile);
       this.lhs = lhs;
       this.methodId = methodId;
       this.argExpressions = argExpressions;
+      this.hash = Objects.hash(lhs, methodId, argExpressions, locationInFile);
     }
 
     public String getMethodId() {
@@ -100,16 +102,18 @@ public abstract class Instruction {
 
     @Override
     public int hashCode() {
-      return Objects.hash(lhs, methodId, argExpressions, locationInFile);
+      return hash;
     }
   }
 
   public static class Ret extends Terminator {
     private final Expression returnedExpression;
+    private final int hash;
 
     public Ret(LocationInFile locationInFile, Expression returnedExpression) {
       super(InstructionType.RET, locationInFile);
       this.returnedExpression = returnedExpression;
+      this.hash = Objects.hash(returnedExpression, locationInFile);
     }
 
     @Override
@@ -135,12 +139,13 @@ public abstract class Instruction {
 
     @Override
     public int hashCode() {
-      return Objects.hash(returnedExpression, locationInFile);
+      return hash;
     }
   }
 
   public static class Jump extends Terminator {
     private final List<Label> destinations;
+    private int hash;
 
     public Jump(List<Label> destinations) {
       super(InstructionType.JUMP, null);
@@ -148,6 +153,7 @@ public abstract class Instruction {
         throw new IllegalStateException("Cannot create jump with empty destinations");
       }
       this.destinations = destinations;
+      this.hash = Objects.hash(destinations);
     }
 
     @Override
@@ -173,7 +179,7 @@ public abstract class Instruction {
 
     @Override
     public int hashCode() {
-      return Objects.hash(destinations);
+      return hash;
     }
   }
 
