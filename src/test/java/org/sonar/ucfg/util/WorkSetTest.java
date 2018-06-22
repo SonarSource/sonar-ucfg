@@ -50,12 +50,16 @@ class WorkSetTest {
     w.addAll(Arrays.asList("c", "a"));
     w.add("b");
     assertThat(w.isEmpty()).isFalse();
+    assertThat(w.size()).isEqualTo(3);
     assertThat(w.pop()).isEqualTo("c");
     assertThat(w.isEmpty()).isFalse();
+    assertThat(w.size()).isEqualTo(2);
     assertThat(w.pop()).isEqualTo("a");
     assertThat(w.isEmpty()).isFalse();
+    assertThat(w.size()).isEqualTo(1);
     assertThat(w.pop()).isEqualTo("b");
     assertThat(w.isEmpty()).isTrue();
+    assertThat(w.size()).isEqualTo(0);
   }
 
   @Test

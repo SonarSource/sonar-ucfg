@@ -28,6 +28,7 @@ public class LocationInFile {
   private final int startLineOffset;
   private final int endLine;
   private final int endLineOffset;
+  private final int hash;
 
   public LocationInFile(String fileId, int startLine, int startLineOffset, int endLine, int endLineOffset) {
     this.fileId = fileId;
@@ -35,6 +36,7 @@ public class LocationInFile {
     this.startLineOffset = startLineOffset;
     this.endLine = endLine;
     this.endLineOffset = endLineOffset;
+    this.hash = Objects.hash(fileId, startLine, startLineOffset, endLine, endLineOffset);
   }
 
   public String getFileId() {
@@ -75,7 +77,7 @@ public class LocationInFile {
 
   @Override
   public int hashCode() {
-    return Objects.hash(fileId, startLine, startLineOffset, endLine, endLineOffset);
+    return hash;
   }
 
   @Override
