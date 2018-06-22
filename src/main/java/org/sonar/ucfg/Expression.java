@@ -29,9 +29,11 @@ public interface Expression {
 
   class Variable implements Expression {
     private final String id;
+    private final int hashcode;
 
     public Variable(String id) {
       this.id = id;
+      this.hashcode = Objects.hash(id);
     }
 
     public String id() {
@@ -57,7 +59,7 @@ public interface Expression {
 
     @Override
     public int hashCode() {
-      return Objects.hash(id);
+      return hashcode;
     }
   }
 

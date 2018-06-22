@@ -61,4 +61,8 @@ public class WorkSet<T> {
   public void addAll(Collection<T> newElements) {
     elements.addAll(newElements);
   }
+
+  public int size() {
+    return elements.size();
+  }
 }
