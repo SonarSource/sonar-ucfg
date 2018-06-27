@@ -11,7 +11,7 @@
 
   <groupId>org.sonarsource.ucfg</groupId>
   <artifactId>sonar-ucfg</artifactId>
-  <version>1.1.1-SNAPSHOT</version>
+  <version>1.2-SNAPSHOT</version>
 
   <description>Java library for universal CFG format</description>
   <inceptionYear>2018</inceptionYear>
