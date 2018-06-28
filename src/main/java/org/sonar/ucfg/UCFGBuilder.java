@@ -60,7 +60,7 @@ public class UCFGBuilder {
   public static class BlockBuilder {
 
     private Instruction.Terminator terminator;
-    private List<Instruction> calls = new ArrayList<>();
+    private List<Instruction> instructions = new ArrayList<>();
     private final Label label;
     private final LocationInFile loc;
 
@@ -82,7 +82,16 @@ public class UCFGBuilder {
     }
 
     public BlockBuilder assignTo(Expression.Variable var, CallBuilder callBuilder, LocationInFile loc) {
-      calls.add(new Instruction.AssignCall(loc, var, callBuilder.methodId, callBuilder.arguments));
+      instructions.add(new Instruction.AssignCall(loc, var, callBuilder.methodId, callBuilder.arguments));
+      return this;
+    }
+
+    public BlockBuilder newObject(Expression.Variable var,  String instanceType) {
+      return newObject(var, instanceType, LOC);
+    }
+
+    public BlockBuilder newObject(Expression.Variable var,  String instanceType, LocationInFile loc) {
+      instructions.add(new Instruction.NewObject(loc, var, instanceType));
       return this;
     }
 
@@ -90,7 +99,7 @@ public class UCFGBuilder {
       if(terminator == null) {
         throw new IllegalStateException("A terminator should be set for block "+label.id());
       }
-      return new BasicBlock(label, calls, terminator, loc);
+      return new BasicBlock(label, instructions, terminator, loc);
     }
 
     public BlockBuilder ret(Expression expression) {

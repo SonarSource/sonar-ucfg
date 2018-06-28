@@ -43,6 +43,7 @@ class UCFGtoProtobufTest {
     UCFGBuilder ucfgBuilder = UCFGBuilder.createUCFGForMethod("myMethod").addMethodParam(parameter1);
     Expression.Variable var1 = UCFGBuilder.variableWithId("var1");
     ucfgBuilder.addStartingBlock(newBasicBlock("startLabel", null)
+      .newObject(var1, "java.lang.Object", new LocationInFile("fileKey", 1,1, 1,12))
       .assignTo(var1, UCFGBuilder.call("__id").withArgs(parameter1), new LocationInFile("fileKey", 1,1, 1,12))
       .jumpTo(createLabel("label2"), createLabel("label3")));
     Expression.Variable var2 = variableWithId("var2");

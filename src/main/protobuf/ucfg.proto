@@ -38,7 +38,8 @@ message AssignCall {
 
 message NewObject {
     Location location = 1;
-    string type = 2;
+    string variable = 2;
+    string type = 3;
 }
 
 message Return {

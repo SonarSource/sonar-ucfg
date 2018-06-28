@@ -56,18 +56,23 @@ public abstract class Instruction {
   }
 
   public static class NewObject extends Instruction {
-
+    private final Expression.Variable lhs;
     private final String instanceType;
 
     private final int hash;
-    private NewObject(LocationInFile locationInFile, String instanceType) {
+    public NewObject(LocationInFile locationInFile, Expression.Variable lhs, String instanceType) {
       super(InstructionType.NEW, locationInFile);
+      this.lhs = lhs;
       this.instanceType = instanceType;
-      this.hash = Objects.hash(instanceType, locationInFile);
+      this.hash = Objects.hash(lhs, instanceType, locationInFile);
     }
 
     public String instanceType() {
       return instanceType;
+    }
+
+    public Expression.Variable getLhs() {
+      return lhs;
     }
 
     @Override
@@ -79,7 +84,9 @@ public abstract class Instruction {
         return false;
       }
       NewObject newObject = (NewObject) o;
-      return Objects.equals(instanceType, newObject.instanceType)  && Objects.equals(locationInFile, newObject.locationInFile);
+      return Objects.equals(instanceType, newObject.instanceType)
+        && Objects.equals(lhs, newObject.lhs)
+        && Objects.equals(locationInFile, newObject.locationInFile);
     }
 
     @Override

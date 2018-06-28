@@ -141,26 +141,30 @@ public final class UCFGtoProtobuf {
     bb.getInstructionsList().forEach(i -> {
       if (i.hasAssigncall()) {
         fromProtobuf(blockBuilder, i.getAssigncall());
-      } else {
-        // FIXME handle newObject instruction deserialization
+      } else if (i.hasNewObject()) {
+        fromProtobuf(blockBuilder, i.getNewObject());
       }
     });
 
-    if(bb.hasJump()) {
+    if (bb.hasJump()) {
       Ucfg.Jump jump = bb.getJump();
       blockBuilder.jumpTo(jump.getDestinationsList().stream().map(UCFGBuilder::createLabel).toArray(Label[]::new));
     }
-    if(bb.hasRet()) {
+    if (bb.hasRet()) {
       Ucfg.Return ret = bb.getRet();
       blockBuilder.ret(fromProtobuf(ret.getReturnedExpression()), fromProtobuf(ret.getLocation()));
     }
     return blockBuilder;
   }
 
-  private static UCFGBuilder.BlockBuilder fromProtobuf(UCFGBuilder.BlockBuilder blockBuilder, Ucfg.AssignCall i) {
-    return blockBuilder.assignTo(UCFGBuilder.variableWithId(i.getVariable()),
-      UCFGBuilder.call(i.getMethodId()).withArgs(i.getArgsList().stream().map(UCFGtoProtobuf::fromProtobuf).toArray(Expression[]::new)),
-      fromProtobuf(i.getLocation()));
+  private static UCFGBuilder.BlockBuilder fromProtobuf(UCFGBuilder.BlockBuilder blockBuilder, Ucfg.AssignCall call) {
+    return blockBuilder.assignTo(UCFGBuilder.variableWithId(call.getVariable()),
+      UCFGBuilder.call(call.getMethodId()).withArgs(call.getArgsList().stream().map(UCFGtoProtobuf::fromProtobuf).toArray(Expression[]::new)),
+      fromProtobuf(call.getLocation()));
+  }
+
+  private static UCFGBuilder.BlockBuilder fromProtobuf(UCFGBuilder.BlockBuilder blockBuilder, Ucfg.NewObject newObject) {
+    return blockBuilder.newObject(UCFGBuilder.variableWithId(newObject.getVariable()), newObject.getType(), fromProtobuf(newObject.getLocation()));
   }
 
   private static Expression fromProtobuf(Ucfg.Expression expr) {
