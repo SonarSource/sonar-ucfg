@@ -60,7 +60,7 @@ public class UCFGBuilder {
   public static class BlockBuilder {
 
     private Instruction.Terminator terminator;
-    private List<Instruction.AssignCall> calls = new ArrayList<>();
+    private List<Instruction> calls = new ArrayList<>();
     private final Label label;
     private final LocationInFile loc;
 

@@ -9,6 +9,7 @@ message UCFG {
     repeated string parameters = 3;
     repeated string entries = 4;
     repeated BasicBlock basicBlocks = 5;
+    bool supportObjects = 6;
 }
 
 message BasicBlock {
@@ -22,10 +23,22 @@ message BasicBlock {
 }
 
 message Instruction {
+    oneof instr {
+        AssignCall assigncall = 1;
+        NewObject newObject = 2;
+    }
+}
+
+message AssignCall {
     Location location = 1;
     string variable = 2;
     string methodId = 3;
     repeated Expression args = 4;
+}
+
+message NewObject {
+    Location location = 1;
+    string type = 2;
 }
 
 message Return {

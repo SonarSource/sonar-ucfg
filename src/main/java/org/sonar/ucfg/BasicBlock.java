@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 
 public class BasicBlock {
   private final Label label;
-  private final List<Instruction.AssignCall> calls;
+  private final List<Instruction> instructions;
   private final LocationInFile loc;
   private Instruction.Terminator terminator;
 
@@ -45,9 +45,9 @@ public class BasicBlock {
     }
   };
 
-  BasicBlock(Label label, List<Instruction.AssignCall> calls, Instruction.Terminator terminator, @Nullable LocationInFile loc) {
+  BasicBlock(Label label, List<Instruction> instructions, Instruction.Terminator terminator, @Nullable LocationInFile loc) {
     this.label = label;
-    this.calls = calls;
+    this.instructions = instructions;
     this.terminator = terminator;
     this.loc = loc;
   }
@@ -56,8 +56,8 @@ public class BasicBlock {
     return label;
   }
 
-  public List<Instruction.AssignCall> calls() {
-    return calls;
+  public List<Instruction> calls() {
+    return instructions;
   }
 
   public Instruction.Terminator terminator() {
@@ -65,7 +65,7 @@ public class BasicBlock {
   }
 
   public boolean isRedundant() {
-    return calls.isEmpty() && !successors().isEmpty();
+    return instructions.isEmpty() && !successors().isEmpty();
   }
 
   public List<Label> successors() {
@@ -100,7 +100,7 @@ public class BasicBlock {
 
   @Override
   public String toString() {
-    return label + "\n" + calls.stream().map(Instruction.AssignCall::toString).collect(Collectors.joining("\n")) + "\n" + terminator.toString();
+    return label + "\n" + instructions.stream().map(Instruction::toString).collect(Collectors.joining("\n")) + "\n" + terminator.toString();
   }
 
   @Nullable
