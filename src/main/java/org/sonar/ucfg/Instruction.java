@@ -44,6 +44,7 @@ public abstract class Instruction {
 
   public enum InstructionType {
     CALL,
+    NEW,
     RET,
     JUMP
   }
@@ -51,6 +52,51 @@ public abstract class Instruction {
   public abstract static class Terminator extends Instruction {
     private Terminator(InstructionType type, @Nullable LocationInFile locationInFile) {
       super(type, locationInFile);
+    }
+  }
+
+  public static class NewObject extends Instruction {
+    private final Expression.Variable lhs;
+    private final String instanceType;
+    private final int hash;
+
+    public NewObject(LocationInFile locationInFile, Expression.Variable lhs, String instanceType) {
+      super(InstructionType.NEW, locationInFile);
+      this.lhs = lhs;
+      this.instanceType = instanceType;
+      this.hash = Objects.hash(lhs, instanceType, locationInFile);
+    }
+
+    public String instanceType() {
+      return instanceType;
+    }
+
+    public Expression.Variable getLhs() {
+      return lhs;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      NewObject newObject = (NewObject) o;
+      return Objects.equals(instanceType, newObject.instanceType)
+        && Objects.equals(lhs, newObject.lhs)
+        && Objects.equals(locationInFile, newObject.locationInFile);
+    }
+
+    @Override
+    public int hashCode() {
+      return hash;
+    }
+
+    @Override
+    public String toString() {
+      return "  " + lhs + " = new " + instanceType + locationInFile;
     }
   }
 

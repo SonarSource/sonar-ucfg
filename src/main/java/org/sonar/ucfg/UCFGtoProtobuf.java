@@ -52,7 +52,12 @@ public final class UCFGtoProtobuf {
     Ucfg.BasicBlock.Builder builder = Ucfg.BasicBlock.newBuilder()
       .setId(basicBlock.label().id())
       .setLocation(toProtobuf(basicBlock.locationInFile()))
-      .addAllInstructions(basicBlock.calls().stream().map(UCFGtoProtobuf::toProtobuf).collect(Collectors.toList()));
+      .addAllInstructions(basicBlock.instructions().stream().map(i -> {
+          if (i.type() == Instruction.InstructionType.CALL) {
+            return toProtobuf((Instruction.AssignCall) i);
+          }
+          return toProtobuf((Instruction.NewObject) i);
+        }).collect(Collectors.toList()));
 
     if (basicBlock.terminator().type() == Instruction.InstructionType.RET) {
       Instruction.Ret ret = (Instruction.Ret) basicBlock.terminator();
@@ -67,11 +72,18 @@ public final class UCFGtoProtobuf {
   }
 
   private static Ucfg.Instruction toProtobuf(Instruction.AssignCall assignCall) {
-    return Ucfg.Instruction.newBuilder().setLocation(toProtobuf(assignCall.location()))
+    return Ucfg.Instruction.newBuilder().setAssigncall(Ucfg.AssignCall.newBuilder().setLocation(toProtobuf(assignCall.location()))
       .setVariable(assignCall.getLhs().id())
       .setMethodId(assignCall.getMethodId())
       .addAllArgs(assignCall.getArgExpressions().stream().map(UCFGtoProtobuf::toProtobuf).collect(Collectors.toList()))
-      .build();
+      .build()).build();
+  }
+
+  private static Ucfg.Instruction toProtobuf(Instruction.NewObject newObject) {
+    return Ucfg.Instruction.newBuilder().setNewObject(Ucfg.NewObject.newBuilder().setLocation(toProtobuf(newObject.location()))
+      .setVariable(newObject.getLhs().id())
+      .setType(newObject.instanceType())
+      .build()).build();
   }
 
   private static Ucfg.Expression toProtobuf(Expression expression) {
@@ -127,20 +139,33 @@ public final class UCFGtoProtobuf {
   private static UCFGBuilder.BlockBuilder fromProtobuf(Ucfg.BasicBlock bb) {
     UCFGBuilder.BlockBuilder blockBuilder = UCFGBuilder.newBasicBlock(bb.getId(), fromProtobuf(bb.getLocation()));
 
-    bb.getInstructionsList().forEach(
-      i -> blockBuilder.assignTo(UCFGBuilder.variableWithId(i.getVariable()),
-        UCFGBuilder.call(i.getMethodId()).withArgs(i.getArgsList().stream().map(UCFGtoProtobuf::fromProtobuf).toArray(Expression[]::new)),
-        fromProtobuf(i.getLocation())));
+    bb.getInstructionsList().forEach(i -> {
+      if (i.hasAssigncall()) {
+        fromProtobuf(blockBuilder, i.getAssigncall());
+      } else if (i.hasNewObject()) {
+        fromProtobuf(blockBuilder, i.getNewObject());
+      }
+    });
 
-    if(bb.hasJump()) {
+    if (bb.hasJump()) {
       Ucfg.Jump jump = bb.getJump();
       blockBuilder.jumpTo(jump.getDestinationsList().stream().map(UCFGBuilder::createLabel).toArray(Label[]::new));
     }
-    if(bb.hasRet()) {
+    if (bb.hasRet()) {
       Ucfg.Return ret = bb.getRet();
       blockBuilder.ret(fromProtobuf(ret.getReturnedExpression()), fromProtobuf(ret.getLocation()));
     }
     return blockBuilder;
+  }
+
+  private static UCFGBuilder.BlockBuilder fromProtobuf(UCFGBuilder.BlockBuilder blockBuilder, Ucfg.AssignCall call) {
+    return blockBuilder.assignTo(UCFGBuilder.variableWithId(call.getVariable()),
+      UCFGBuilder.call(call.getMethodId()).withArgs(call.getArgsList().stream().map(UCFGtoProtobuf::fromProtobuf).toArray(Expression[]::new)),
+      fromProtobuf(call.getLocation()));
+  }
+
+  private static UCFGBuilder.BlockBuilder fromProtobuf(UCFGBuilder.BlockBuilder blockBuilder, Ucfg.NewObject newObject) {
+    return blockBuilder.newObject(UCFGBuilder.variableWithId(newObject.getVariable()), newObject.getType(), fromProtobuf(newObject.getLocation()));
   }
 
   private static Expression fromProtobuf(Ucfg.Expression expr) {
