@@ -19,10 +19,6 @@
  */
 package org.sonar.ucfg;
 
-import org.sonar.ucfg.Expression;
-import org.sonar.ucfg.Instruction;
-import org.sonar.ucfg.Label;
-import org.sonar.ucfg.LocationInFile;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
@@ -93,5 +89,22 @@ class InstructionTest {
     assertThat(call).isEqualTo(call).isEqualTo(call2)
       .isNotEqualTo(null).isNotEqualTo(new Object()).isNotEqualTo(call3);
     assertThat(call.hashCode()).isEqualTo(call2.hashCode()).isNotEqualTo(call3.hashCode());
+  }
+
+  @Test
+  void new_object_instruction() {
+    Instruction newObject = new Instruction.NewObject(loc, new Expression.Variable("var#0"), "com.foo.bar.Qix");
+    assertThat(newObject.type()).isSameAs(Instruction.InstructionType.NEW);
+    assertThat(newObject.location()).isSameAs(loc);
+    assertThat(newObject.toString()).isEqualTo("  var#0 = new com.foo.bar.Qix\n" +
+      "         in fileId\n" +
+      "         at 1:12 - 1:15");
+
+
+    Instruction newObject2 = new Instruction.NewObject(loc, new Expression.Variable("var#0"), "com.foo.bar.Qix");
+    Instruction newObject3 = new Instruction.NewObject(loc, new Expression.Variable("var#1"), "com.foo.bar.Qix");
+    Instruction newObject4 = new Instruction.NewObject(loc, new Expression.Variable("var#0"), "com.foo.bar.Qix2");
+    assertThat(newObject).isEqualTo(newObject).isEqualTo(newObject2).isNotEqualTo(null).isNotEqualTo(new Object()).isNotEqualTo(newObject3).isNotEqualTo(newObject4);
+    assertThat(newObject.hashCode()).isEqualTo(newObject2.hashCode()).isNotEqualTo(newObject3.hashCode());
   }
 }
