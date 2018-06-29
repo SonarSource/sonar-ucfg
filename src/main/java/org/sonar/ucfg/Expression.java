@@ -144,4 +144,56 @@ public interface Expression {
       return "ClassName:"+ typeName;
     }
   }
+
+  class FieldAccess implements Expression {
+
+    private final Expression object;
+    private final Expression.Variable field;
+    private final int hashcode;
+
+    private FieldAccess(Expression object, Expression.Variable field) {
+      this.object = object;
+      this.field = field;
+      this.hashcode = Objects.hash(object, field);
+    }
+
+    public FieldAccess(Expression.Variable field) {
+      this(THIS, field);
+    }
+
+    public FieldAccess(Expression.Variable object, Expression.Variable field) {
+      this((Expression) object, field);
+    }
+
+    public Expression object() {
+      return object;
+    }
+
+    public Expression.Variable field() {
+      return field;
+    }
+
+    @Override
+    public String toString() {
+      return String.format("FieldAccess %s %s", object, field);
+    }
+
+    @Override
+    public int hashCode() {
+      return hashcode;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      FieldAccess fieldAccess = (FieldAccess) o;
+      return Objects.equals(object, fieldAccess.object)
+        && Objects.equals(field, fieldAccess.field);
+    }
+  }
 }

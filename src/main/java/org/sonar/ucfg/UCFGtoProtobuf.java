@@ -94,6 +94,19 @@ public final class UCFGtoProtobuf {
       builder.setThis(Ucfg.This.newBuilder().build());
     } else if (expression instanceof Expression.ClassName) {
       builder.setClassname(Ucfg.ClassName.newBuilder().setClassname(((Expression.ClassName) expression).typeName()).build());
+    } else if (expression instanceof Expression.FieldAccess) {
+      Ucfg.FieldAccess.Builder fieldAccessBuilder = Ucfg.FieldAccess.newBuilder();
+      Expression.FieldAccess fieldAccess = (Expression.FieldAccess) expression;
+      Expression object = fieldAccess.object();
+      if (object == Expression.THIS) {
+        Ucfg.This thisAsObj = Ucfg.This.newBuilder().build();
+        fieldAccessBuilder.setThis(thisAsObj);
+      } else {
+        Ucfg.Variable varAsObj = Ucfg.Variable.newBuilder().setName(((Expression.Variable) object).id()).build();
+        fieldAccessBuilder.setObject(varAsObj);
+      }
+      Ucfg.Variable field = Ucfg.Variable.newBuilder().setName(fieldAccess.field().id()).build();
+      builder.setFieldAccess(fieldAccessBuilder.setField(field).build());
     } else {
       builder.setVar(Ucfg.Variable.newBuilder().setName(((Expression.Variable) expression).id()).build());
     }
@@ -181,6 +194,14 @@ public final class UCFGtoProtobuf {
     }
     if (expr.hasClassname()) {
       return UCFGBuilder.clazz(expr.getClassname().getClassname());
+    }
+    if (expr.hasFieldAccess()) {
+      Ucfg.FieldAccess fieldAccess = expr.getFieldAccess();
+      Expression.Variable field = UCFGBuilder.variableWithId(fieldAccess.getField().getName());
+      if (fieldAccess.hasThis()) {
+        return UCFGBuilder.fieldAccess(field);
+      }
+      return UCFGBuilder.fieldAccess(UCFGBuilder.variableWithId(fieldAccess.getObject().getName()), field);
     }
     return UCFGBuilder.variableWithId(expr.getVar().getName());
   }

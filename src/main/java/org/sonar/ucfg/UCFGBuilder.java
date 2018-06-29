@@ -183,11 +183,18 @@ public class UCFGBuilder {
     return new Expression.ClassName(classname);
   }
 
+  public static Expression.FieldAccess fieldAccess(Expression.Variable field) {
+    return new Expression.FieldAccess(field);
+  }
+
+  public static Expression.FieldAccess fieldAccess(Expression.Variable object, Expression.Variable field) {
+    return new Expression.FieldAccess(object, field);
+  }
+
   public UCFGBuilder addMethodParam(Expression.Variable parameter) {
     parameters.add(parameter);
     return this;
   }
-
 
   public static class CallBuilder {
     private final String methodId;

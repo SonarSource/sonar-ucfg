@@ -57,6 +57,7 @@ message Expression {
         Constant const = 2;
         This this = 3;
         ClassName classname = 4;
+        FieldAccess fieldAccess = 5;
     }
 }
 
@@ -73,6 +74,14 @@ message This {
 
 message ClassName {
     string classname = 1;
+}
+
+message FieldAccess {
+    oneof expr_obj {
+        Variable object = 1;
+        This this = 2;
+    }
+    Variable field = 3;
 }
 
 message Location {
