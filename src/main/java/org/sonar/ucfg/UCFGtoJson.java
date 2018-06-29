@@ -94,7 +94,7 @@ public final class UCFGtoJson {
       JsonObject jsonObject = new JsonObject();
       jsonObject.add("bbId", context.serialize(src.label()));
       jsonObject.add("bbLoc", context.serialize(src.locationInFile()));
-      jsonObject.add("bbInstr", context.serialize(src.calls()));
+      jsonObject.add("bbInstr", context.serialize(src.instructions()));
       jsonObject.add("bbTerm", context.serialize(src.terminator()));
       return jsonObject;
     }

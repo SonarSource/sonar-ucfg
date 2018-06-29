@@ -58,8 +58,8 @@ public abstract class Instruction {
   public static class NewObject extends Instruction {
     private final Expression.Variable lhs;
     private final String instanceType;
-
     private final int hash;
+
     public NewObject(LocationInFile locationInFile, Expression.Variable lhs, String instanceType) {
       super(InstructionType.NEW, locationInFile);
       this.lhs = lhs;
@@ -96,7 +96,7 @@ public abstract class Instruction {
 
     @Override
     public String toString() {
-      return "   new " + instanceType + locationInFile;
+      return "  " + lhs + " = new " + instanceType + locationInFile;
     }
   }
 

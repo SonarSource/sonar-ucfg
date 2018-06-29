@@ -56,7 +56,7 @@ public class BasicBlock {
     return label;
   }
 
-  public List<Instruction> calls() {
+  public List<Instruction> instructions() {
     return instructions;
   }
 

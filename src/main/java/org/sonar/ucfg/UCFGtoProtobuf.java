@@ -52,7 +52,7 @@ public final class UCFGtoProtobuf {
     Ucfg.BasicBlock.Builder builder = Ucfg.BasicBlock.newBuilder()
       .setId(basicBlock.label().id())
       .setLocation(toProtobuf(basicBlock.locationInFile()))
-      .addAllInstructions(basicBlock.calls().stream().map( i -> {
+      .addAllInstructions(basicBlock.instructions().stream().map(i -> {
           if (i.type() == Instruction.InstructionType.CALL) {
             return toProtobuf((Instruction.AssignCall) i);
           }
@@ -81,6 +81,7 @@ public final class UCFGtoProtobuf {
 
   private static Ucfg.Instruction toProtobuf(Instruction.NewObject newObject) {
     return Ucfg.Instruction.newBuilder().setNewObject(Ucfg.NewObject.newBuilder().setLocation(toProtobuf(newObject.location()))
+      .setVariable(newObject.getLhs().id())
       .setType(newObject.instanceType())
       .build()).build();
   }
