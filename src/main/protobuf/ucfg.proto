@@ -55,6 +55,8 @@ message Expression {
     oneof expr {
         Variable var = 1;
         Constant const = 2;
+        This this = 3;
+        Clazz clazzname = 4;
     }
 }
 
@@ -64,6 +66,13 @@ message Variable {
 
 message Constant {
     string value = 1;
+}
+
+message This {
+}
+
+message Clazz {
+    string classname = 1;
 }
 
 message Location {

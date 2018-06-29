@@ -90,6 +90,10 @@ public final class UCFGtoProtobuf {
     Ucfg.Expression.Builder builder = Ucfg.Expression.newBuilder();
     if (expression.isConstant()) {
       builder.setConst(Ucfg.Constant.newBuilder().setValue(((Expression.Constant) expression).value()).build());
+    } else if(expression == Expression.THIS) {
+      builder.setThis(Ucfg.This.newBuilder().build());
+    } else if (expression instanceof Expression.Clazz) {
+      builder.setClazzname(Ucfg.Clazz.newBuilder().setClassname(((Expression.Clazz) expression).className()).build());
     } else {
       builder.setVar(Ucfg.Variable.newBuilder().setName(((Expression.Variable) expression).id()).build());
     }
@@ -169,8 +173,14 @@ public final class UCFGtoProtobuf {
   }
 
   private static Expression fromProtobuf(Ucfg.Expression expr) {
-    if(expr.hasConst()) {
+    if (expr.hasConst()) {
       return UCFGBuilder.constant(expr.getConst().getValue());
+    }
+    if (expr.hasThis()) {
+      return Expression.THIS;
+    }
+    if (expr.hasClazzname()) {
+      return UCFGBuilder.clazz(expr.getClazzname().getClassname());
     }
     return UCFGBuilder.variableWithId(expr.getVar().getName());
   }

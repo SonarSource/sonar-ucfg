@@ -23,6 +23,13 @@ import java.util.Objects;
 
 public interface Expression {
 
+  Expression THIS = new Expression() {
+    @Override
+    public String toString() {
+      return "_this_";
+    }
+  };
+
   default boolean isConstant(){
     return false;
   }
@@ -99,6 +106,42 @@ public interface Expression {
     @Override
     public boolean isConstant() {
       return true;
+    }
+  }
+
+  class Clazz implements Expression {
+    private final String className;
+    private final int hashcode;
+
+    public Clazz(String className) {
+      this.className = className;
+      this.hashcode = Objects.hash(className);
+    }
+
+    public String className() {
+      return className;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Clazz clazz = (Clazz) o;
+      return Objects.equals(className, clazz.className);
+    }
+
+    @Override
+    public int hashCode() {
+      return hashcode;
+    }
+
+    @Override
+    public String toString() {
+      return "ClassName:"+className;
     }
   }
 }
