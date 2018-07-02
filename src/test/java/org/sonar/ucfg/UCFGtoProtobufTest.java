@@ -47,7 +47,7 @@ class UCFGtoProtobufTest {
     ucfgBuilder.addStartingBlock(newBasicBlock("startLabel", null)
       .newObject(var1, "java.lang.Object", new LocationInFile("fileKey", 1,1, 1,12))
       .assignTo(var1, UCFGBuilder.call("__id").withArgs(parameter1), new LocationInFile("fileKey", 1,1, 1,12))
-      .jumpTo(createLabel("label2"), createLabel("label3")));
+      .jumpTo(createLabel("label2"), createLabel("label3"), createLabel("label4")));
     Expression.Variable var2 = variableWithId("var2");
     ucfgBuilder.addBasicBlock(newBasicBlock("label2", new LocationInFile("fileKey", 2, 1, 2,12))
       .assignTo(var2,UCFGBuilder.call("__id").withArgs(constant("AConstant")), new LocationInFile("fileKey", 2, 1, 2,12))
