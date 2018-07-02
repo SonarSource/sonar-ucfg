@@ -74,7 +74,7 @@ class UCFGElementTest {
   }
 
   @Test
-  void call_has_only_one_dest() {
+  void assign_call_instruction() {
     UCFGElement call = new UCFGElement.AssignCall(loc, new Expression.Variable("dest"), "methodId", Arrays.asList(new Expression.Variable("expr1"), new Expression.Constant("expr2")));
     assertThat(call.type()).isSameAs(UCFGElement.UCFGElementType.CALL);
     assertThat(call.location()).isSameAs(loc);
@@ -89,6 +89,16 @@ class UCFGElementTest {
     assertThat(call).isEqualTo(call).isEqualTo(call2)
       .isNotEqualTo(null).isNotEqualTo(new Object()).isNotEqualTo(call3);
     assertThat(call.hashCode()).isEqualTo(call2.hashCode()).isNotEqualTo(call3.hashCode());
+
+    UCFGElement.AssignCall assignCall_id_accept_FieldAccess =
+      new UCFGElement.AssignCall(loc, new Expression.Variable("dest1"), "__id", Arrays.asList(new Expression.FieldAccess(new Expression.Variable("field1")), new Expression.Constant("expr2")));
+    assertThat(assignCall_id_accept_FieldAccess.getArgExpressions().stream().filter(e -> e instanceof Expression.FieldAccess)).isNotEmpty();
+    try {
+      new UCFGElement.AssignCall(loc, new Expression.Variable("dest1"), "some_method", Arrays.asList(new Expression.FieldAccess(new Expression.Variable("field1")), new Expression.Constant("expr2")));
+      fail("This assign call with a field access should not have been instantiated");
+    } catch (IllegalArgumentException iae) {
+      assertThat(iae).hasMessage("Field access cannot be use as argument of method : some_method");
+    }
   }
 
   @Test
