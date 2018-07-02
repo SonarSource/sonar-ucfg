@@ -117,6 +117,9 @@ public abstract class UCFGElement {
       this.methodId = methodId;
       this.argExpressions = argExpressions;
       this.hash = Objects.hash(UCFGElementType.CALL, lhs, methodId, argExpressions, locationInFile);
+      if (!"__id".equals(methodId) && argExpressions.stream().anyMatch(e -> e instanceof Expression.FieldAccess)) {
+        throw new IllegalArgumentException(String.format("Field access cannot be use as argument of method : %s", methodId));
+      }
     }
 
     public String getMethodId() {
