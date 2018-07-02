@@ -1,4 +1,5 @@
-Sonar Ucfg
+Sonar Ucfg [![Build Status](https://travis-ci.org/SonarSource/sonar-ucfg.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-ucfg) [![Quality Gate](https://next.sonarqube.com/sonarqube/api/project_badges/measure?project=org.sonarsource.ucfg%3Asonar-ucfg&metric=alert_status)](https://next.sonarqube.com/sonarqube/dashboard?id=org.sonarsource.ucfg%3Asonar-ucfg) [![Coverage](https://next.sonarqube.com/sonarqube/api/project_badges/measure?project=org.sonarsource.ucfg%3Asonar-ucfg&metric=coverage
+)](https://next.sonarqube.com/sonarqube/component_measures?id=org.sonarsource.ucfg%3Asonar-ucfg&metric=coverage)
 ==========
 
 Sonar Ucfg (for Universal Control Flow Graph) is an open source java library that provides the format of expected CFGs to be analyzed by SonarSecurity (which is a SonarSource commercial product).
