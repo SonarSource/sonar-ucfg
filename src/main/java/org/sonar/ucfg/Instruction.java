@@ -64,7 +64,7 @@ public abstract class Instruction {
       super(InstructionType.NEW, locationInFile);
       this.lhs = lhs;
       this.instanceType = instanceType;
-      this.hash = Objects.hash(lhs, instanceType, locationInFile);
+      this.hash = Objects.hash(InstructionType.NEW, lhs, instanceType, locationInFile);
     }
 
     public String instanceType() {
@@ -111,7 +111,7 @@ public abstract class Instruction {
       this.lhs = lhs;
       this.methodId = methodId;
       this.argExpressions = argExpressions;
-      this.hash = Objects.hash(lhs, methodId, argExpressions, locationInFile);
+      this.hash = Objects.hash(InstructionType.CALL, lhs, methodId, argExpressions, locationInFile);
     }
 
     public String getMethodId() {
@@ -159,7 +159,7 @@ public abstract class Instruction {
     public Ret(LocationInFile locationInFile, Expression returnedExpression) {
       super(InstructionType.RET, locationInFile);
       this.returnedExpression = returnedExpression;
-      this.hash = Objects.hash(returnedExpression, locationInFile);
+      this.hash = Objects.hash(InstructionType.RET, returnedExpression, locationInFile);
     }
 
     @Override
@@ -199,7 +199,7 @@ public abstract class Instruction {
         throw new IllegalStateException("Cannot create jump with empty destinations");
       }
       this.destinations = destinations;
-      this.hash = Objects.hash(destinations);
+      this.hash = Objects.hash(InstructionType.JUMP, destinations);
     }
 
     @Override
