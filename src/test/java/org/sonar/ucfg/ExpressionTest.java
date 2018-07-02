@@ -31,6 +31,7 @@ class ExpressionTest {
     assertThat(new Expression.Variable("variable").isConstant()).isFalse();
     assertThat(new Expression.ClassName("classname").isConstant()).isFalse();
     assertThat(Expression.THIS.isConstant()).isFalse();
+    assertThat(new Expression.FieldAccess(new Expression.Variable("field")).isConstant()).isFalse();
   }
 
   @Test
@@ -45,8 +46,11 @@ class ExpressionTest {
     Expression.ClassName className = new Expression.ClassName("classname1");
     Expression.ClassName className2 = new Expression.ClassName("classname2");
     Expression.ClassName className3 = new Expression.ClassName("classname1");
-
-
+    Expression.FieldAccess fieldAccess1 = new Expression.FieldAccess(var1, var2);
+    Expression.FieldAccess fieldAccess1Bis = new Expression.FieldAccess(var1, var2);
+    Expression.FieldAccess fieldAccess2 = new Expression.FieldAccess(var2, var1);
+    Expression.FieldAccess thidFieldAccess1 = new Expression.FieldAccess(var1);
+    Expression.FieldAccess thisFieldAccess2 = new Expression.FieldAccess(var2);
 
     assertThat(constant).isEqualTo(constant).isEqualTo(constantBis).isNotEqualTo(anotherConst).isNotEqualTo(var1).isNotEqualTo(null).isNotEqualTo(Expression.THIS);
     assertThat(constant.hashCode()).isEqualTo(constantBis.hashCode()).isNotEqualTo(anotherConst.hashCode()).isNotEqualTo(var1.hashCode());
@@ -58,14 +62,23 @@ class ExpressionTest {
     assertThat(className.hashCode()).isEqualTo(className3.hashCode()).isNotEqualTo(anotherConst.hashCode()).isNotEqualTo(className2.hashCode());
 
     assertThat(varConstant).isNotEqualTo(constant);
+
+    assertThat(fieldAccess1).isEqualTo(fieldAccess1).isEqualTo(fieldAccess1Bis).isNotEqualTo(fieldAccess2).isNotEqualTo(thidFieldAccess1).isNotEqualTo(constant).isNotEqualTo(null);
+    assertThat(thidFieldAccess1).isNotEqualTo(thisFieldAccess2);
+    assertThat(fieldAccess1.hashCode()).isEqualTo(fieldAccess1Bis.hashCode()).isNotEqualTo(fieldAccess2.hashCode());
   }
 
   @Test
   void to_string() {
     Expression.Variable var1 = new Expression.Variable("var1");
+    Expression.Variable var2 = new Expression.Variable("var2");
     Expression.Constant constant = new Expression.Constant("constant");
+    Expression.FieldAccess fieldAccess1 = new Expression.FieldAccess(var1, var2);
+    Expression.FieldAccess fieldAccess2 = new Expression.FieldAccess(var2);
 
     assertThat(var1.toString()).isEqualTo("var1").isEqualTo(var1.id());
     assertThat(constant.toString()).isEqualTo("\"constant\"");
+    assertThat(fieldAccess1.toString()).isEqualTo("FieldAccess var1 var2");
+    assertThat(fieldAccess2.toString()).isEqualTo("FieldAccess _this_ var2");
   }
 }
