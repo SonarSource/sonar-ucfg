@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.ucfg.UCFGElement.Instruction;
 import org.sonar.ucfg.util.WorkSet;
 
 public class UCFGBuilder {
@@ -59,7 +60,7 @@ public class UCFGBuilder {
 
   public static class BlockBuilder {
 
-    private Instruction.Terminator terminator;
+    private UCFGElement.Terminator terminator;
     private List<Instruction> instructions = new ArrayList<>();
     private final Label label;
     private final LocationInFile loc;
@@ -69,7 +70,7 @@ public class UCFGBuilder {
       this.loc = loc;
     }
 
-    public BlockBuilder terminator(Instruction.Terminator terminator) {
+    public BlockBuilder terminator(UCFGElement.Terminator terminator) {
       if(this.terminator != null) {
         throw new IllegalStateException("A terminator is already set for block "+label.id());
       }
@@ -82,7 +83,7 @@ public class UCFGBuilder {
     }
 
     public BlockBuilder assignTo(Expression.Variable var, CallBuilder callBuilder, LocationInFile loc) {
-      instructions.add(new Instruction.AssignCall(loc, var, callBuilder.methodId, callBuilder.arguments));
+      instructions.add(new UCFGElement.AssignCall(loc, var, callBuilder.methodId, callBuilder.arguments));
       return this;
     }
 
@@ -91,7 +92,7 @@ public class UCFGBuilder {
     }
 
     public BlockBuilder newObject(Expression.Variable var, String instanceType, LocationInFile loc) {
-      instructions.add(new Instruction.NewObject(loc, var, instanceType));
+      instructions.add(new UCFGElement.NewObject(loc, var, instanceType));
       return this;
     }
 
@@ -107,11 +108,11 @@ public class UCFGBuilder {
     }
 
     public BlockBuilder ret(Expression expression, LocationInFile locationInFile) {
-      return terminator(new Instruction.Ret(locationInFile, expression));
+      return terminator(new UCFGElement.Ret(locationInFile, expression));
     }
 
     public BlockBuilder jumpTo(Label... labels) {
-      return terminator(new Instruction.Jump(Arrays.asList(labels)));
+      return terminator(new UCFGElement.Jump(Arrays.asList(labels)));
     }
   }
 

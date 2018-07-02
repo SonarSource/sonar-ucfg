@@ -24,17 +24,17 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
-public abstract class Instruction {
+public abstract class UCFGElement {
 
-  private final InstructionType type;
+  private final UCFGElementType type;
   final LocationInFile locationInFile;
 
-  private Instruction(InstructionType type, @Nullable LocationInFile locationInFile) {
+  private UCFGElement(UCFGElementType type, @Nullable LocationInFile locationInFile) {
     this.type = type;
     this.locationInFile = locationInFile;
   }
 
-  public InstructionType type() {
+  public UCFGElementType type() {
     return type;
   }
 
@@ -42,15 +42,20 @@ public abstract class Instruction {
     return locationInFile;
   }
 
-  public enum InstructionType {
+  public enum UCFGElementType {
     CALL,
     NEW,
     RET,
     JUMP
   }
 
-  public abstract static class Terminator extends Instruction {
-    private Terminator(InstructionType type, @Nullable LocationInFile locationInFile) {
+  public abstract static class Terminator extends UCFGElement {
+    private Terminator(UCFGElementType type, @Nullable LocationInFile locationInFile) {
+      super(type, locationInFile);
+    }
+  }
+  public abstract static class Instruction extends UCFGElement {
+    private Instruction(UCFGElementType type, @Nullable LocationInFile locationInFile) {
       super(type, locationInFile);
     }
   }
@@ -61,10 +66,10 @@ public abstract class Instruction {
     private final int hash;
 
     public NewObject(LocationInFile locationInFile, Expression.Variable lhs, String instanceType) {
-      super(InstructionType.NEW, locationInFile);
+      super(UCFGElementType.NEW, locationInFile);
       this.lhs = lhs;
       this.instanceType = instanceType;
-      this.hash = Objects.hash(InstructionType.NEW, lhs, instanceType, locationInFile);
+      this.hash = Objects.hash(UCFGElementType.NEW, lhs, instanceType, locationInFile);
     }
 
     public String instanceType() {
@@ -107,11 +112,11 @@ public abstract class Instruction {
     private final int hash;
 
     public AssignCall(LocationInFile locationInFile, Expression.Variable lhs, String methodId, List<Expression> argExpressions) {
-      super(InstructionType.CALL, locationInFile);
+      super(UCFGElementType.CALL, locationInFile);
       this.lhs = lhs;
       this.methodId = methodId;
       this.argExpressions = argExpressions;
-      this.hash = Objects.hash(InstructionType.CALL, lhs, methodId, argExpressions, locationInFile);
+      this.hash = Objects.hash(UCFGElementType.CALL, lhs, methodId, argExpressions, locationInFile);
     }
 
     public String getMethodId() {
@@ -157,9 +162,9 @@ public abstract class Instruction {
     private final int hash;
 
     public Ret(LocationInFile locationInFile, Expression returnedExpression) {
-      super(InstructionType.RET, locationInFile);
+      super(UCFGElementType.RET, locationInFile);
       this.returnedExpression = returnedExpression;
-      this.hash = Objects.hash(InstructionType.RET, returnedExpression, locationInFile);
+      this.hash = Objects.hash(UCFGElementType.RET, returnedExpression, locationInFile);
     }
 
     @Override
@@ -194,12 +199,12 @@ public abstract class Instruction {
     private int hash;
 
     public Jump(List<Label> destinations) {
-      super(InstructionType.JUMP, null);
+      super(UCFGElementType.JUMP, null);
       if(destinations.isEmpty()) {
         throw new IllegalStateException("Cannot create jump with empty destinations");
       }
       this.destinations = destinations;
-      this.hash = Objects.hash(InstructionType.JUMP, destinations);
+      this.hash = Objects.hash(UCFGElementType.JUMP, destinations);
     }
 
     @Override

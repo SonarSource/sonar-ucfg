@@ -53,25 +53,25 @@ public final class UCFGtoProtobuf {
       .setId(basicBlock.label().id())
       .setLocation(toProtobuf(basicBlock.locationInFile()))
       .addAllInstructions(basicBlock.instructions().stream().map(i -> {
-          if (i.type() == Instruction.InstructionType.CALL) {
-            return toProtobuf((Instruction.AssignCall) i);
+          if (i.type() == UCFGElement.UCFGElementType.CALL) {
+            return toProtobuf((UCFGElement.AssignCall) i);
           }
-          return toProtobuf((Instruction.NewObject) i);
+          return toProtobuf((UCFGElement.NewObject) i);
         }).collect(Collectors.toList()));
 
-    if (basicBlock.terminator().type() == Instruction.InstructionType.RET) {
-      Instruction.Ret ret = (Instruction.Ret) basicBlock.terminator();
+    if (basicBlock.terminator().type() == UCFGElement.UCFGElementType.RET) {
+      UCFGElement.Ret ret = (UCFGElement.Ret) basicBlock.terminator();
       builder.setRet(Ucfg.Return.newBuilder().setLocation(toProtobuf(ret.location())).setReturnedExpression(toProtobuf(ret.getReturnedExpression())));
     } else {
       Ucfg.Jump.Builder jump = Ucfg.Jump.newBuilder();
-      Instruction.Jump terminator = (Instruction.Jump) basicBlock.terminator();
+      UCFGElement.Jump terminator = (UCFGElement.Jump) basicBlock.terminator();
       jump.addAllDestinations(terminator.destinations().stream().map(Label::id).collect(Collectors.toList()));
       builder.setJump(jump);
     }
     return builder.build();
   }
 
-  private static Ucfg.Instruction toProtobuf(Instruction.AssignCall assignCall) {
+  private static Ucfg.Instruction toProtobuf(UCFGElement.AssignCall assignCall) {
     return Ucfg.Instruction.newBuilder().setAssigncall(Ucfg.AssignCall.newBuilder().setLocation(toProtobuf(assignCall.location()))
       .setVariable(assignCall.getLhs().id())
       .setMethodId(assignCall.getMethodId())
@@ -79,7 +79,7 @@ public final class UCFGtoProtobuf {
       .build()).build();
   }
 
-  private static Ucfg.Instruction toProtobuf(Instruction.NewObject newObject) {
+  private static Ucfg.Instruction toProtobuf(UCFGElement.NewObject newObject) {
     return Ucfg.Instruction.newBuilder().setNewObject(Ucfg.NewObject.newBuilder().setLocation(toProtobuf(newObject.location()))
       .setVariable(newObject.getLhs().id())
       .setType(newObject.instanceType())

@@ -31,25 +31,25 @@ class BasicBlockTest {
   @Test
   void test_block_equality() {
     Label dest = new Label("dest");
-    BasicBlock b1 = new BasicBlock(new Label("label1"), Collections.emptyList(), new Instruction.Jump(Collections.singletonList(dest)), null);
-    BasicBlock b2 = new BasicBlock(new Label("label2"), Collections.emptyList(), new Instruction.Jump(Collections.singletonList(dest)), null);
-    BasicBlock b3 = new BasicBlock(new Label("label1"), Collections.emptyList(), new Instruction.Jump(Collections.singletonList(dest)), null);
+    BasicBlock b1 = new BasicBlock(new Label("label1"), Collections.emptyList(), new UCFGElement.Jump(Collections.singletonList(dest)), null);
+    BasicBlock b2 = new BasicBlock(new Label("label2"), Collections.emptyList(), new UCFGElement.Jump(Collections.singletonList(dest)), null);
+    BasicBlock b3 = new BasicBlock(new Label("label1"), Collections.emptyList(), new UCFGElement.Jump(Collections.singletonList(dest)), null);
     assertThat(b1).isEqualTo(b1).isEqualTo(b3).isNotEqualTo(new Object()).isNotEqualTo(null).isNotEqualTo(b2);
   }
 
   @Test
   void isRedundant_block() {
     Label dest = new Label("dest");
-    BasicBlock b1 = new BasicBlock(new Label("label1"), Collections.emptyList(), new Instruction.Jump(Collections.singletonList(dest)), null);
+    BasicBlock b1 = new BasicBlock(new Label("label1"), Collections.emptyList(), new UCFGElement.Jump(Collections.singletonList(dest)), null);
     assertThat(b1.isRedundant()).isTrue();
 
-    BasicBlock b2 = new BasicBlock(new Label("label1"), Collections.emptyList(), new Instruction.Ret(null, null), null);
+    BasicBlock b2 = new BasicBlock(new Label("label1"), Collections.emptyList(), new UCFGElement.Ret(null, null), null);
     assertThat(b2.isRedundant()).isFalse();
 
-    BasicBlock b3 = new BasicBlock(new Label("label1"), Collections.singletonList(new Instruction.AssignCall(null, null, "foo", Collections.emptyList())), new Instruction.Jump(Collections.singletonList(dest)), null);
+    BasicBlock b3 = new BasicBlock(new Label("label1"), Collections.singletonList(new UCFGElement.AssignCall(null, null, "foo", Collections.emptyList())), new UCFGElement.Jump(Collections.singletonList(dest)), null);
     assertThat(b3.isRedundant()).isFalse();
 
-    BasicBlock b4 = new BasicBlock(new Label("label1"), Collections.singletonList(new Instruction.AssignCall(null, null, "foo", Collections.emptyList())), new Instruction.Ret(null, null), null);
+    BasicBlock b4 = new BasicBlock(new Label("label1"), Collections.singletonList(new UCFGElement.AssignCall(null, null, "foo", Collections.emptyList())), new UCFGElement.Ret(null, null), null);
     assertThat(b4.isRedundant()).isFalse();
   }
 
@@ -58,11 +58,11 @@ class BasicBlockTest {
     assertThat(BasicBlock.DEAD_END.isRedundant()).isFalse();
     assertThat(BasicBlock.DEAD_END.successors()).containsOnly(BasicBlock.DEAD_END.label());
     assertThat(BasicBlock.DEAD_END.locationInFile()).isNull();
-    assertThat(BasicBlock.DEAD_END.terminator().type()).isEqualTo(Instruction.InstructionType.JUMP);
-    assertThat(((Instruction.Jump) BasicBlock.DEAD_END.terminator()).destinations()).containsOnly(BasicBlock.DEAD_END.label());
+    assertThat(BasicBlock.DEAD_END.terminator().type()).isEqualTo(UCFGElement.UCFGElementType.JUMP);
+    assertThat(((UCFGElement.Jump) BasicBlock.DEAD_END.terminator()).destinations()).containsOnly(BasicBlock.DEAD_END.label());
 
     Label newSuccessorLabel = new Label("1");
-    Set<BasicBlock> newSuccessors = Collections.singleton(new BasicBlock(newSuccessorLabel, Collections.emptyList(), new Instruction.Ret(null, null), null));
+    Set<BasicBlock> newSuccessors = Collections.singleton(new BasicBlock(newSuccessorLabel, Collections.emptyList(), new UCFGElement.Ret(null, null), null));
     BasicBlock.DEAD_END.updateSuccs(newSuccessors);
 
     assertThat(BasicBlock.DEAD_END.successors()).containsOnly(BasicBlock.DEAD_END.label());
