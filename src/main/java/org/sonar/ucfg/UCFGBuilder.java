@@ -179,8 +179,8 @@ public class UCFGBuilder {
     return new Expression.Constant(value);
   }
 
-  public static Expression.Clazz clazz(String classname) {
-    return new Expression.Clazz(classname);
+  public static Expression.ClassName clazz(String classname) {
+    return new Expression.ClassName(classname);
   }
 
   public UCFGBuilder addMethodParam(Expression.Variable parameter) {

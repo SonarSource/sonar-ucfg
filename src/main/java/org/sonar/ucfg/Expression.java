@@ -109,17 +109,17 @@ public interface Expression {
     }
   }
 
-  class Clazz implements Expression {
-    private final String className;
+  class ClassName implements Expression {
+    private final String typeName;
     private final int hashcode;
 
-    public Clazz(String className) {
-      this.className = className;
-      this.hashcode = Objects.hash(className);
+    public ClassName(String typeName) {
+      this.typeName = typeName;
+      this.hashcode = Objects.hash(typeName);
     }
 
-    public String className() {
-      return className;
+    public String typeName() {
+      return typeName;
     }
 
     @Override
@@ -130,8 +130,8 @@ public interface Expression {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      Clazz clazz = (Clazz) o;
-      return Objects.equals(className, clazz.className);
+      ClassName thatClassName = (ClassName) o;
+      return Objects.equals(this.typeName, thatClassName.typeName);
     }
 
     @Override
@@ -141,7 +141,7 @@ public interface Expression {
 
     @Override
     public String toString() {
-      return "ClassName:"+className;
+      return "ClassName:"+ typeName;
     }
   }
 }

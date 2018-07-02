@@ -56,7 +56,7 @@ message Expression {
         Variable var = 1;
         Constant const = 2;
         This this = 3;
-        Clazz clazzname = 4;
+        ClassName classname = 4;
     }
 }
 
@@ -71,7 +71,7 @@ message Constant {
 message This {
 }
 
-message Clazz {
+message ClassName {
     string classname = 1;
 }
 
