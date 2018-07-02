@@ -29,6 +29,8 @@ class ExpressionTest {
   void test_constant() {
     assertThat(new Expression.Constant("const").isConstant()).isTrue();
     assertThat(new Expression.Variable("variable").isConstant()).isFalse();
+    assertThat(new Expression.ClassName("classname").isConstant()).isFalse();
+    assertThat(Expression.THIS.isConstant()).isFalse();
   }
 
   @Test
@@ -40,12 +42,20 @@ class ExpressionTest {
     Expression.Variable var1 = new Expression.Variable("var1");
     Expression.Variable var2 = new Expression.Variable("var2");
     Expression.Variable var1Bis = new Expression.Variable("var1");
+    Expression.ClassName className = new Expression.ClassName("classname1");
+    Expression.ClassName className2 = new Expression.ClassName("classname2");
+    Expression.ClassName className3 = new Expression.ClassName("classname1");
 
-    assertThat(constant).isEqualTo(constant).isEqualTo(constantBis).isNotEqualTo(anotherConst).isNotEqualTo(var1).isNotEqualTo(null);
+
+
+    assertThat(constant).isEqualTo(constant).isEqualTo(constantBis).isNotEqualTo(anotherConst).isNotEqualTo(var1).isNotEqualTo(null).isNotEqualTo(Expression.THIS);
     assertThat(constant.hashCode()).isEqualTo(constantBis.hashCode()).isNotEqualTo(anotherConst.hashCode()).isNotEqualTo(var1.hashCode());
 
-    assertThat(var1).isEqualTo(var1).isEqualTo(var1Bis).isNotEqualTo(constant).isNotEqualTo(var2).isNotEqualTo(null);
+    assertThat(var1).isEqualTo(var1).isEqualTo(var1Bis).isNotEqualTo(constant).isNotEqualTo(var2).isNotEqualTo(null).isNotEqualTo(Expression.THIS);
     assertThat(var1.hashCode()).isEqualTo(var1Bis.hashCode()).isNotEqualTo(anotherConst.hashCode()).isNotEqualTo(var2.hashCode());
+
+    assertThat(className).isEqualTo(className).isEqualTo(className3).isNotEqualTo(constant).isNotEqualTo(className2).isNotEqualTo(null).isNotEqualTo(Expression.THIS);
+    assertThat(className.hashCode()).isEqualTo(className3.hashCode()).isNotEqualTo(anotherConst.hashCode()).isNotEqualTo(className2.hashCode());
 
     assertThat(varConstant).isNotEqualTo(constant);
   }

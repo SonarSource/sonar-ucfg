@@ -29,6 +29,7 @@ import org.sonar.ucfg.protobuf.Ucfg;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.sonar.ucfg.UCFGBuilder.clazz;
 import static org.sonar.ucfg.UCFGBuilder.constant;
 import static org.sonar.ucfg.UCFGBuilder.createLabel;
 import static org.sonar.ucfg.UCFGBuilder.newBasicBlock;
@@ -51,7 +52,7 @@ class UCFGtoProtobufTest {
       .assignTo(var2,UCFGBuilder.call("__id").withArgs(constant("AConstant")), new LocationInFile("fileKey", 2, 1, 2,12))
       .ret(var2));
     ucfgBuilder.addBasicBlock(newBasicBlock("label3", new LocationInFile("fileKey", 3, 1, 3,12))
-      .assignTo(var2,UCFGBuilder.call("__id").withArgs(constant("AConstant")), new LocationInFile("fileKey", 3, 1, 3,12))
+      .assignTo(var2,UCFGBuilder.call("__id").withArgs(Expression.THIS, clazz("myclass")), new LocationInFile("fileKey", 3, 1, 3,12))
       .ret(var2));
     UCFG ucfg = ucfgBuilder.build();
 
