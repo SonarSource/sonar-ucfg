@@ -25,15 +25,17 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.ucfg.UCFGElement.Instruction;
+import org.sonar.ucfg.UCFGElement.UCFGElementType;
 
 public class BasicBlock {
   private final Label label;
   private final List<Instruction> instructions;
   private final LocationInFile loc;
-  private Instruction.Terminator terminator;
+  private UCFGElement.Terminator terminator;
 
   private static final Label DEAD_END_LABEL = new Label("DEAD_END");
-  public static final BasicBlock DEAD_END = new BasicBlock(DEAD_END_LABEL, Collections.emptyList(), new Instruction.Jump(Collections.singletonList(DEAD_END_LABEL)), null) {
+  public static final BasicBlock DEAD_END = new BasicBlock(DEAD_END_LABEL, Collections.emptyList(), new UCFGElement.Jump(Collections.singletonList(DEAD_END_LABEL)), null) {
     @Override
     public boolean isRedundant() {
       return false;
@@ -60,7 +62,7 @@ public class BasicBlock {
     return instructions;
   }
 
-  public Instruction.Terminator terminator() {
+  public UCFGElement.Terminator terminator() {
     return terminator;
   }
 
@@ -69,15 +71,15 @@ public class BasicBlock {
   }
 
   public List<Label> successors() {
-    if(terminator.type() == Instruction.InstructionType.JUMP) {
-      return ((Instruction.Jump) terminator).destinations();
+    if(terminator.type() == UCFGElementType.JUMP) {
+      return ((UCFGElement.Jump) terminator).destinations();
     }
     return Collections.emptyList();
   }
 
   public void updateSuccs(Set<BasicBlock> successors) {
-    if (terminator.type() == Instruction.InstructionType.JUMP) {
-      this.terminator = new Instruction.Jump(successors.stream().map(BasicBlock::label).collect(Collectors.toList()));
+    if (terminator.type() == UCFGElementType.JUMP) {
+      this.terminator = new UCFGElement.Jump(successors.stream().map(BasicBlock::label).collect(Collectors.toList()));
     }
   }
 

@@ -41,9 +41,9 @@ public final class UCFGtoJson {
     gson.registerTypeAdapter(Expression.Variable.class, new VariableSerializer());
     gson.registerTypeAdapter(Expression.Constant.class, new ConstantSerializer());
     gson.registerTypeAdapter(BasicBlock.class, new BasicBlockSerializer());
-    gson.registerTypeAdapter(Instruction.AssignCall.class, new AssignCallSerializer());
-    gson.registerTypeAdapter(Instruction.Ret.class, new ReturnSerializer());
-    gson.registerTypeAdapter(Instruction.Jump.class, new JumpSerializer());
+    gson.registerTypeAdapter(UCFGElement.AssignCall.class, new AssignCallSerializer());
+    gson.registerTypeAdapter(UCFGElement.Ret.class, new ReturnSerializer());
+    gson.registerTypeAdapter(UCFGElement.Jump.class, new JumpSerializer());
     gson.registerTypeAdapter(LocationInFile.class, new LocationSerializer());
 
     return gson.create().toJson(ucfg);
@@ -100,9 +100,9 @@ public final class UCFGtoJson {
     }
   }
 
-  private static class AssignCallSerializer implements JsonSerializer<Instruction.AssignCall> {
+  private static class AssignCallSerializer implements JsonSerializer<UCFGElement.AssignCall> {
     @Override
-    public JsonElement serialize(Instruction.AssignCall src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(UCFGElement.AssignCall src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject jsonObject = new JsonObject();
       jsonObject.add("instrLoc", context.serialize(src.location()));
       jsonObject.addProperty("instrLhs", src.getLhs().id());
@@ -125,9 +125,9 @@ public final class UCFGtoJson {
     }
   }
 
-  private static class ReturnSerializer implements JsonSerializer<Instruction.Ret> {
+  private static class ReturnSerializer implements JsonSerializer<UCFGElement.Ret> {
     @Override
-    public JsonElement serialize(Instruction.Ret src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(UCFGElement.Ret src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject jsonObject = new JsonObject();
       jsonObject.addProperty("tag", "Ret");
       jsonObject.add("retLoc", context.serialize(src.location()));
@@ -136,9 +136,9 @@ public final class UCFGtoJson {
     }
   }
 
-  private static class JumpSerializer implements JsonSerializer<Instruction.Jump> {
+  private static class JumpSerializer implements JsonSerializer<UCFGElement.Jump> {
     @Override
-    public JsonElement serialize(Instruction.Jump src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(UCFGElement.Jump src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject jsonObject = new JsonObject();
       jsonObject.addProperty("tag", "Jump");
       jsonObject.add("jumpDest", context.serialize(src.destinations()));

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-class InstructionTest {
+class UCFGElementTest {
 
   private LocationInFile loc = new LocationInFile("fileId", 1, 12, 1, 15);
 
@@ -34,13 +34,13 @@ class InstructionTest {
   void jump_should_have_no_location_and_empty_sources() {
     Label label1 = new Label("1");
     Label label2 = new Label("2");
-    Instruction.Jump jump = new Instruction.Jump(Arrays.asList(label1, label2));
-    assertThat(jump.type()).isSameAs(Instruction.InstructionType.JUMP);
+    UCFGElement.Jump jump = new UCFGElement.Jump(Arrays.asList(label1, label2));
+    assertThat(jump.type()).isSameAs(UCFGElement.UCFGElementType.JUMP);
     assertThat(jump.destinations()).containsExactly(label1, label2);
     assertThat(jump.toString()).isEqualTo("    jump 1, 2");
 
-    Instruction.Jump jump2 = new Instruction.Jump(Arrays.asList(label1, label2));
-    Instruction.Jump jump3 = new Instruction.Jump(Collections.singletonList(label1));
+    UCFGElement.Jump jump2 = new UCFGElement.Jump(Arrays.asList(label1, label2));
+    UCFGElement.Jump jump3 = new UCFGElement.Jump(Collections.singletonList(label1));
     assertThat(jump).isEqualTo(jump).isEqualTo(jump2)
       .isNotEqualTo(null).isNotEqualTo(new Object()).isNotEqualTo(jump3);
     assertThat(jump.hashCode()).isEqualTo(jump.hashCode()).isEqualTo(jump2.hashCode()).isNotEqualTo(jump3.hashCode());
@@ -49,7 +49,7 @@ class InstructionTest {
   @Test
   void cannot_create_empty_jump() {
     try {
-      new Instruction.Jump(Collections.emptyList());
+      new UCFGElement.Jump(Collections.emptyList());
       fail("jump construction should not have succeeded");
     }catch (IllegalStateException ise) {
       assertThat(ise).hasMessage("Cannot create jump with empty destinations");
@@ -58,15 +58,15 @@ class InstructionTest {
 
   @Test
   void ret_should_have_one_source_and_no_dest() {
-    Instruction ret = new Instruction.Ret(loc, new Expression.Variable("var#0"));
-    assertThat(ret.type()).isSameAs(Instruction.InstructionType.RET);
+    UCFGElement ret = new UCFGElement.Ret(loc, new Expression.Variable("var#0"));
+    assertThat(ret.type()).isSameAs(UCFGElement.UCFGElementType.RET);
     assertThat(ret.location()).isSameAs(loc);
     assertThat(ret.toString()).isEqualTo("     ret var#0\n" +
       "         in fileId\n" +
       "         at 1:12 - 1:15");
 
-    Instruction ret2 = new Instruction.Ret(loc, new Expression.Variable("var#0"));
-    Instruction ret3 = new Instruction.Ret(loc, new Expression.Variable("var#1"));
+    UCFGElement ret2 = new UCFGElement.Ret(loc, new Expression.Variable("var#0"));
+    UCFGElement ret3 = new UCFGElement.Ret(loc, new Expression.Variable("var#1"));
 
     assertThat(ret).isEqualTo(ret).isEqualTo(ret2)
       .isNotEqualTo(null).isNotEqualTo(new Object()).isNotEqualTo(ret3);
@@ -75,16 +75,16 @@ class InstructionTest {
 
   @Test
   void call_has_only_one_dest() {
-    Instruction call = new Instruction.AssignCall(loc, new Expression.Variable("dest"), "methodId", Arrays.asList(new Expression.Variable("expr1"), new Expression.Constant("expr2")));
-    assertThat(call.type()).isSameAs(Instruction.InstructionType.CALL);
+    UCFGElement call = new UCFGElement.AssignCall(loc, new Expression.Variable("dest"), "methodId", Arrays.asList(new Expression.Variable("expr1"), new Expression.Constant("expr2")));
+    assertThat(call.type()).isSameAs(UCFGElement.UCFGElementType.CALL);
     assertThat(call.location()).isSameAs(loc);
     assertThat(call.toString()).isEqualTo("    call dest = methodId (expr1, \"expr2\")\n" +
       "         in fileId\n" +
       "         at 1:12 - 1:15");
 
 
-    Instruction call2 = new Instruction.AssignCall(loc, new Expression.Variable("dest"), "methodId", Arrays.asList(new Expression.Variable("expr1"), new Expression.Constant("expr2")));
-    Instruction call3 = new Instruction.AssignCall(loc, new Expression.Variable("dest"), "methodId", Collections.singletonList(new Expression.Variable("expr1")));
+    UCFGElement call2 = new UCFGElement.AssignCall(loc, new Expression.Variable("dest"), "methodId", Arrays.asList(new Expression.Variable("expr1"), new Expression.Constant("expr2")));
+    UCFGElement call3 = new UCFGElement.AssignCall(loc, new Expression.Variable("dest"), "methodId", Collections.singletonList(new Expression.Variable("expr1")));
     
     assertThat(call).isEqualTo(call).isEqualTo(call2)
       .isNotEqualTo(null).isNotEqualTo(new Object()).isNotEqualTo(call3);
@@ -93,17 +93,17 @@ class InstructionTest {
 
   @Test
   void new_object_instruction() {
-    Instruction newObject = new Instruction.NewObject(loc, new Expression.Variable("var#0"), "com.foo.bar.Qix");
-    assertThat(newObject.type()).isSameAs(Instruction.InstructionType.NEW);
+    UCFGElement newObject = new UCFGElement.NewObject(loc, new Expression.Variable("var#0"), "com.foo.bar.Qix");
+    assertThat(newObject.type()).isSameAs(UCFGElement.UCFGElementType.NEW);
     assertThat(newObject.location()).isSameAs(loc);
     assertThat(newObject.toString()).isEqualTo("  var#0 = new com.foo.bar.Qix\n" +
       "         in fileId\n" +
       "         at 1:12 - 1:15");
 
 
-    Instruction newObject2 = new Instruction.NewObject(loc, new Expression.Variable("var#0"), "com.foo.bar.Qix");
-    Instruction newObject3 = new Instruction.NewObject(loc, new Expression.Variable("var#1"), "com.foo.bar.Qix");
-    Instruction newObject4 = new Instruction.NewObject(loc, new Expression.Variable("var#0"), "com.foo.bar.Qix2");
+    UCFGElement newObject2 = new UCFGElement.NewObject(loc, new Expression.Variable("var#0"), "com.foo.bar.Qix");
+    UCFGElement newObject3 = new UCFGElement.NewObject(loc, new Expression.Variable("var#1"), "com.foo.bar.Qix");
+    UCFGElement newObject4 = new UCFGElement.NewObject(loc, new Expression.Variable("var#0"), "com.foo.bar.Qix2");
     assertThat(newObject).isEqualTo(newObject).isEqualTo(newObject2).isNotEqualTo(null).isNotEqualTo(new Object()).isNotEqualTo(newObject3).isNotEqualTo(newObject4);
     assertThat(newObject.hashCode()).isEqualTo(newObject2.hashCode()).isNotEqualTo(newObject3.hashCode());
   }
