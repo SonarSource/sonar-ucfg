@@ -29,6 +29,7 @@ import org.sonar.ucfg.protobuf.Ucfg;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.sonar.ucfg.UCFGBuilder.call;
 import static org.sonar.ucfg.UCFGBuilder.clazz;
 import static org.sonar.ucfg.UCFGBuilder.constant;
 import static org.sonar.ucfg.UCFGBuilder.createLabel;
@@ -41,26 +42,33 @@ class UCFGtoProtobufTest {
 
   @Test
   void serialize_and_deserialize_ucfg() throws IOException {
-    Expression.Variable parameter1 = UCFGBuilder.variableWithId("parameter1");
+    Expression.Variable parameter1 = variableWithId("parameter1");
     UCFGBuilder ucfgBuilder = UCFGBuilder.createUCFGForMethod("myMethod").addMethodParam(parameter1);
-    Expression.Variable var1 = UCFGBuilder.variableWithId("var1");
+    Expression.Variable var1 = variableWithId("var1");
     ucfgBuilder.addStartingBlock(newBasicBlock("startLabel", null)
       .newObject(var1, "java.lang.Object", new LocationInFile("fileKey", 1,1, 1,12))
-      .assignTo(var1, UCFGBuilder.call("__id").withArgs(parameter1), new LocationInFile("fileKey", 1,1, 1,12))
+      .assignTo(var1, call("__id").withArgs(parameter1), new LocationInFile("fileKey", 1, 1, 1, 12))
       .jumpTo(createLabel("label2"), createLabel("label3"), createLabel("label4")));
     Expression.Variable var2 = variableWithId("var2");
     ucfgBuilder.addBasicBlock(newBasicBlock("label2", new LocationInFile("fileKey", 2, 1, 2,12))
-      .assignTo(var2,UCFGBuilder.call("__id").withArgs(constant("AConstant")), new LocationInFile("fileKey", 2, 1, 2,12))
+      .assignTo(var2, call("__id").withArgs(constant("AConstant")), new LocationInFile("fileKey", 2, 1, 2, 12))
       .ret(var2));
     ucfgBuilder.addBasicBlock(newBasicBlock("label3", new LocationInFile("fileKey", 3, 1, 3,12))
-      .assignTo(var2,UCFGBuilder.call("__id").withArgs(Expression.THIS, clazz("myclass")), new LocationInFile("fileKey", 3, 1, 3,12))
+      .assignTo(var2, call("__id").withArgs(Expression.THIS, clazz("org.foo.MyClass")), new LocationInFile("fileKey", 3, 1, 3, 12))
       .ret(var2));
     Expression.Variable obj = variableWithId("obj");
     Expression.Variable field = variableWithId("field");
+    Expression.ClassName className = clazz("org.foo.MyClass");
     Expression.Variable var3 = variableWithId("var3");
+    Expression.FieldAccess fieldAccess = fieldAccess(obj, field);
+    Expression.FieldAccess thisFieldAccess = fieldAccess(field);
+    Expression.FieldAccess staticFieldAccess = fieldAccess(className, field);
     ucfgBuilder.addBasicBlock(newBasicBlock("label4", new LocationInFile("fileKey", 4, 1, 4, 12))
-      .assignTo(var3, UCFGBuilder.call("__id").withArgs(fieldAccess(obj, field)), new LocationInFile("fileKey", 4, 1, 4, 12))
-      .assignTo(var3, UCFGBuilder.call("__id").withArgs(fieldAccess(field)), new LocationInFile("fileKey", 4, 1, 4, 12))
+      .assignTo(var3, call("__id").withArgs(fieldAccess), new LocationInFile("fileKey", 4, 1, 4, 12))
+      .assignTo(var3, call("__id").withArgs(thisFieldAccess), new LocationInFile("fileKey", 4, 1, 4, 12))
+      .assignTo(fieldAccess, call("__id").withArgs(var3), new LocationInFile("fileKey", 4, 1, 4, 12))
+      .assignTo(staticFieldAccess, call("__id").withArgs(var3), new LocationInFile("fileKey", 4, 1, 4, 12))
+      .newObject(fieldAccess, "java.lang.Object", new LocationInFile("fileKey", 1, 1, 1, 12))
       .ret(var3));
     UCFG ucfg = ucfgBuilder.build();
 

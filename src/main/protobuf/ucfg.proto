@@ -31,15 +31,21 @@ message Instruction {
 
 message AssignCall {
     Location location = 1;
-    string variable = 2;
-    string methodId = 3;
-    repeated Expression args = 4;
+    oneof target {
+        Variable variable = 2;
+        FieldAccess fieldAccess = 3;
+    }
+    string methodId = 4;
+    repeated Expression args = 5;
 }
 
 message NewObject {
     Location location = 1;
-    string variable = 2;
-    string type = 3;
+    oneof target {
+        Variable variable = 2;
+        FieldAccess fieldAccess = 3;
+    }
+    string type = 4;
 }
 
 message Return {
@@ -80,8 +86,9 @@ message FieldAccess {
     oneof expr_obj {
         Variable object = 1;
         This this = 2;
+        ClassName classname = 3;
     }
-    Variable field = 3;
+    Variable field = 4;
 }
 
 message Location {

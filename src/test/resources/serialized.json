@@ -32,7 +32,10 @@
             "locEndLine": 1,
             "locEndLineOffset": 1
           },
-          "instrLhs": "var1",
+          "instrLhs": {
+            "tag": "Var",
+            "varName": "var1"
+          },
           "instrMeth": "fun",
           "instrArgs": [
             {
@@ -68,7 +71,10 @@
             "locEndLine": 1,
             "locEndLineOffset": 1
           },
-          "instrLhs": "var2",
+          "instrLhs": {
+            "tag": "Var",
+            "varName": "var2"
+          },
           "instrMeth": "fun",
           "instrArgs": [
             {
@@ -111,7 +117,10 @@
             "locEndLine": 1,
             "locEndLineOffset": 1
           },
-          "instrLhs": "var3",
+          "instrLhs": {
+            "tag": "Var",
+            "varName": "var3"
+          },
           "instrMeth": "fun",
           "instrArgs": [
             {

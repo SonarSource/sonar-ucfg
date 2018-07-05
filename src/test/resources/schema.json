@@ -74,7 +74,7 @@
       "type": "object",
       "properties": {
         "instrLoc": { "$ref": "#/definitions/location" },
-        "instrLhs": { "type": "string" },
+        "instrLhs": { "type": "object" },
         "instrMeth": { "type": "string" },
         "instrArgs": {
           "type": "array",

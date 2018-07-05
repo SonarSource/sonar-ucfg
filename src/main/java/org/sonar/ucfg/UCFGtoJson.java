@@ -105,7 +105,7 @@ public final class UCFGtoJson {
     public JsonElement serialize(UCFGElement.AssignCall src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject jsonObject = new JsonObject();
       jsonObject.add("instrLoc", context.serialize(src.location()));
-      jsonObject.addProperty("instrLhs", src.getLhs().id());
+      jsonObject.add("instrLhs", context.serialize(src.getLhs()));
       jsonObject.add("instrMeth", context.serialize(src.getMethodId()));
       jsonObject.add("instrArgs", context.serialize(src.getArgExpressions()));
       return jsonObject;
