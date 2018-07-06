@@ -46,10 +46,12 @@ class BasicBlockTest {
     BasicBlock b2 = new BasicBlock(new Label("label1"), Collections.emptyList(), new UCFGElement.Ret(null, null), null);
     assertThat(b2.isRedundant()).isFalse();
 
-    BasicBlock b3 = new BasicBlock(new Label("label1"), Collections.singletonList(new UCFGElement.AssignCall(null, null, "foo", Collections.emptyList())), new UCFGElement.Jump(Collections.singletonList(dest)), null);
+    BasicBlock b3 = new BasicBlock(new Label("label1"), Collections.singletonList(new UCFGElement.AssignCall(null, (Expression.Variable) null, "foo", Collections.emptyList())),
+      new UCFGElement.Jump(Collections.singletonList(dest)), null);
     assertThat(b3.isRedundant()).isFalse();
 
-    BasicBlock b4 = new BasicBlock(new Label("label1"), Collections.singletonList(new UCFGElement.AssignCall(null, null, "foo", Collections.emptyList())), new UCFGElement.Ret(null, null), null);
+    BasicBlock b4 = new BasicBlock(new Label("label1"), Collections.singletonList(new UCFGElement.AssignCall(null, (Expression.Variable) null, "foo", Collections.emptyList())),
+      new UCFGElement.Ret(null, null), null);
     assertThat(b4.isRedundant()).isFalse();
   }
 

@@ -51,6 +51,7 @@ class ExpressionTest {
     Expression.FieldAccess fieldAccess2 = new Expression.FieldAccess(var2, var1);
     Expression.FieldAccess thidFieldAccess1 = new Expression.FieldAccess(var1);
     Expression.FieldAccess thisFieldAccess2 = new Expression.FieldAccess(var2);
+    Expression.FieldAccess staticFieldAccess = new Expression.FieldAccess(className, var1);
 
     assertThat(constant).isEqualTo(constant).isEqualTo(constantBis).isNotEqualTo(anotherConst).isNotEqualTo(var1).isNotEqualTo(null).isNotEqualTo(Expression.THIS);
     assertThat(constant.hashCode()).isEqualTo(constantBis.hashCode()).isNotEqualTo(anotherConst.hashCode()).isNotEqualTo(var1.hashCode());
@@ -64,8 +65,8 @@ class ExpressionTest {
     assertThat(varConstant).isNotEqualTo(constant);
 
     assertThat(fieldAccess1).isEqualTo(fieldAccess1).isEqualTo(fieldAccess1Bis).isNotEqualTo(fieldAccess2).isNotEqualTo(thidFieldAccess1).isNotEqualTo(constant).isNotEqualTo(null);
-    assertThat(thidFieldAccess1).isNotEqualTo(thisFieldAccess2);
-    assertThat(fieldAccess1.hashCode()).isEqualTo(fieldAccess1Bis.hashCode()).isNotEqualTo(fieldAccess2.hashCode());
+    assertThat(thidFieldAccess1).isNotEqualTo(thisFieldAccess2).isNotEqualTo(staticFieldAccess);
+    assertThat(fieldAccess1.hashCode()).isEqualTo(fieldAccess1Bis.hashCode()).isNotEqualTo(fieldAccess2.hashCode()).isNotEqualTo(staticFieldAccess.hashCode());
   }
 
   @Test

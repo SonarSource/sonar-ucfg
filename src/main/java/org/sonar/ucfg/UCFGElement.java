@@ -61,22 +61,30 @@ public abstract class UCFGElement {
   }
 
   public static class NewObject extends Instruction {
-    private final Expression.Variable lhs;
+    private final Expression lhs;
     private final String instanceType;
     private final int hash;
 
-    public NewObject(LocationInFile locationInFile, Expression.Variable lhs, String instanceType) {
+    private NewObject(LocationInFile locationInFile, Expression lhs, String instanceType) {
       super(UCFGElementType.NEW, locationInFile);
       this.lhs = lhs;
       this.instanceType = instanceType;
       this.hash = Objects.hash(UCFGElementType.NEW, lhs, instanceType, locationInFile);
     }
 
+    public NewObject(LocationInFile locationInFile, Expression.Variable lhs, String instanceType) {
+      this(locationInFile, (Expression) lhs, instanceType);
+    }
+
+    public NewObject(LocationInFile locationInFile, Expression.FieldAccess lhs, String instanceType) {
+      this(locationInFile, (Expression) lhs, instanceType);
+    }
+
     public String instanceType() {
       return instanceType;
     }
 
-    public Expression.Variable getLhs() {
+    public Expression getLhs() {
       return lhs;
     }
 
@@ -106,12 +114,12 @@ public abstract class UCFGElement {
   }
 
   public static class AssignCall extends Instruction {
-    private final Expression.Variable lhs;
+    private final Expression lhs;
     private final String methodId;
     private final List<Expression> argExpressions;
     private final int hash;
 
-    public AssignCall(LocationInFile locationInFile, Expression.Variable lhs, String methodId, List<Expression> argExpressions) {
+    private AssignCall(LocationInFile locationInFile, Expression lhs, String methodId, List<Expression> argExpressions) {
       super(UCFGElementType.CALL, locationInFile);
       this.lhs = lhs;
       this.methodId = methodId;
@@ -120,6 +128,14 @@ public abstract class UCFGElement {
       if (!"__id".equals(methodId) && argExpressions.stream().anyMatch(e -> e instanceof Expression.FieldAccess)) {
         throw new IllegalArgumentException(String.format("Field access cannot be use as argument of method : %s", methodId));
       }
+    }
+
+    public AssignCall(LocationInFile locationInFile, Expression.Variable lhs, String methodId, List<Expression> argExpressions) {
+      this(locationInFile, (Expression) lhs, methodId, argExpressions);
+    }
+
+    public AssignCall(LocationInFile locationInFile, Expression.FieldAccess lhs, String methodId, List<Expression> argExpressions) {
+      this(locationInFile, (Expression) lhs, methodId, argExpressions);
     }
 
     public String getMethodId() {
@@ -135,7 +151,7 @@ public abstract class UCFGElement {
       return "    call " + lhs + " = " + methodId + " (" + argExpressions.stream().map(Expression::toString).collect(Collectors.joining(", ")) + ")" + locationInFile.toString();
     }
 
-    public Expression.Variable getLhs() {
+    public Expression getLhs() {
       return lhs;
     }
 

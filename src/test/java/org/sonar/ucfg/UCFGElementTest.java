@@ -85,9 +85,16 @@ class UCFGElementTest {
 
     UCFGElement call2 = new UCFGElement.AssignCall(loc, new Expression.Variable("dest"), "methodId", Arrays.asList(new Expression.Variable("expr1"), new Expression.Constant("expr2")));
     UCFGElement call3 = new UCFGElement.AssignCall(loc, new Expression.Variable("dest"), "methodId", Collections.singletonList(new Expression.Variable("expr1")));
-    
-    assertThat(call).isEqualTo(call).isEqualTo(call2)
-      .isNotEqualTo(null).isNotEqualTo(new Object()).isNotEqualTo(call3);
+    UCFGElement fieldAccessCall = new UCFGElement.AssignCall(loc, new Expression.FieldAccess(new Expression.Variable("dest")), "methodId",
+      Collections.singletonList(new Expression.Variable("expr1")));
+
+    assertThat(call)
+      .isEqualTo(call)
+      .isEqualTo(call2)
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object())
+      .isNotEqualTo(call3)
+      .isNotEqualTo(fieldAccessCall);
     assertThat(call.hashCode()).isEqualTo(call2.hashCode()).isNotEqualTo(call3.hashCode());
 
     UCFGElement.AssignCall assignCall_id_accept_FieldAccess =
@@ -114,7 +121,15 @@ class UCFGElementTest {
     UCFGElement newObject2 = new UCFGElement.NewObject(loc, new Expression.Variable("var#0"), "com.foo.bar.Qix");
     UCFGElement newObject3 = new UCFGElement.NewObject(loc, new Expression.Variable("var#1"), "com.foo.bar.Qix");
     UCFGElement newObject4 = new UCFGElement.NewObject(loc, new Expression.Variable("var#0"), "com.foo.bar.Qix2");
-    assertThat(newObject).isEqualTo(newObject).isEqualTo(newObject2).isNotEqualTo(null).isNotEqualTo(new Object()).isNotEqualTo(newObject3).isNotEqualTo(newObject4);
+    UCFGElement fieldAccessNewObject = new UCFGElement.NewObject(loc, new Expression.FieldAccess(new Expression.Variable("var#0")), "com.foo.bar.Qix");
+    assertThat(newObject)
+      .isEqualTo(newObject)
+      .isEqualTo(newObject2)
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object())
+      .isNotEqualTo(newObject3)
+      .isNotEqualTo(newObject4)
+      .isNotEqualTo(fieldAccessNewObject);
     assertThat(newObject.hashCode()).isEqualTo(newObject2.hashCode()).isNotEqualTo(newObject3.hashCode());
   }
 }

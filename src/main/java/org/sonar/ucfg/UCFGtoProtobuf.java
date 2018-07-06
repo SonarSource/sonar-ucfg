@@ -72,45 +72,78 @@ public final class UCFGtoProtobuf {
   }
 
   private static Ucfg.Instruction toProtobuf(UCFGElement.AssignCall assignCall) {
-    return Ucfg.Instruction.newBuilder().setAssigncall(Ucfg.AssignCall.newBuilder().setLocation(toProtobuf(assignCall.location()))
-      .setVariable(assignCall.getLhs().id())
+    Ucfg.AssignCall.Builder builder = Ucfg.AssignCall.newBuilder()
+      .setLocation(toProtobuf(assignCall.location()))
       .setMethodId(assignCall.getMethodId())
-      .addAllArgs(assignCall.getArgExpressions().stream().map(UCFGtoProtobuf::toProtobuf).collect(Collectors.toList()))
-      .build()).build();
+      .addAllArgs(assignCall.getArgExpressions().stream().map(UCFGtoProtobuf::toProtobuf).collect(Collectors.toList()));
+    Expression lhs = assignCall.getLhs();
+
+    if (lhs instanceof Expression.Variable) {
+      builder.setVariable(toProtobuf((Expression.Variable) lhs));
+    } else {
+      builder.setFieldAccess(toProtobuf((Expression.FieldAccess) lhs));
+    }
+    return Ucfg.Instruction.newBuilder().setAssigncall(builder.build()).build();
   }
 
   private static Ucfg.Instruction toProtobuf(UCFGElement.NewObject newObject) {
-    return Ucfg.Instruction.newBuilder().setNewObject(Ucfg.NewObject.newBuilder().setLocation(toProtobuf(newObject.location()))
-      .setVariable(newObject.getLhs().id())
-      .setType(newObject.instanceType())
-      .build()).build();
+    Ucfg.NewObject.Builder builder = Ucfg.NewObject.newBuilder()
+      .setLocation(toProtobuf(newObject.location()))
+      .setType(newObject.instanceType());
+
+    Expression lhs = newObject.getLhs();
+    if (lhs instanceof Expression.Variable) {
+      builder.setVariable(toProtobuf((Expression.Variable) lhs));
+    } else {
+      builder.setFieldAccess(toProtobuf((Expression.FieldAccess) lhs));
+    }
+    return Ucfg.Instruction.newBuilder().setNewObject(builder.build()).build();
   }
 
   private static Ucfg.Expression toProtobuf(Expression expression) {
     Ucfg.Expression.Builder builder = Ucfg.Expression.newBuilder();
     if (expression.isConstant()) {
-      builder.setConst(Ucfg.Constant.newBuilder().setValue(((Expression.Constant) expression).value()).build());
+      builder.setConst(toProtobuf((Expression.Constant) expression));
     } else if(expression == Expression.THIS) {
-      builder.setThis(Ucfg.This.newBuilder().build());
+      builder.setThis(toProtobufThis());
     } else if (expression instanceof Expression.ClassName) {
-      builder.setClassname(Ucfg.ClassName.newBuilder().setClassname(((Expression.ClassName) expression).typeName()).build());
+      builder.setClassname(toProtobuf((Expression.ClassName) expression));
     } else if (expression instanceof Expression.FieldAccess) {
-      Ucfg.FieldAccess.Builder fieldAccessBuilder = Ucfg.FieldAccess.newBuilder();
-      Expression.FieldAccess fieldAccess = (Expression.FieldAccess) expression;
-      Expression object = fieldAccess.object();
-      if (object == Expression.THIS) {
-        Ucfg.This thisAsObj = Ucfg.This.newBuilder().build();
-        fieldAccessBuilder.setThis(thisAsObj);
-      } else {
-        Ucfg.Variable varAsObj = Ucfg.Variable.newBuilder().setName(((Expression.Variable) object).id()).build();
-        fieldAccessBuilder.setObject(varAsObj);
-      }
-      Ucfg.Variable field = Ucfg.Variable.newBuilder().setName(fieldAccess.field().id()).build();
-      builder.setFieldAccess(fieldAccessBuilder.setField(field).build());
+      builder.setFieldAccess(toProtobuf((Expression.FieldAccess) expression));
     } else {
-      builder.setVar(Ucfg.Variable.newBuilder().setName(((Expression.Variable) expression).id()).build());
+      builder.setVar(toProtobuf((Expression.Variable) expression));
     }
     return builder.build();
+  }
+
+  private static Ucfg.Constant toProtobuf(Expression.Constant constant) {
+    return Ucfg.Constant.newBuilder().setValue(constant.value()).build();
+  }
+
+  private static Ucfg.Variable toProtobuf(Expression.Variable variable) {
+    return Ucfg.Variable.newBuilder().setName(variable.id()).build();
+  }
+
+  private static Ucfg.ClassName toProtobuf(Expression.ClassName className) {
+    return Ucfg.ClassName.newBuilder().setClassname(className.typeName()).build();
+  }
+
+  private static Ucfg.This toProtobufThis() {
+    return Ucfg.This.newBuilder().build();
+  }
+
+  private static Ucfg.FieldAccess toProtobuf(Expression.FieldAccess fieldAccess) {
+    Ucfg.FieldAccess.Builder fieldAccessBuilder = Ucfg.FieldAccess.newBuilder();
+    Expression object = fieldAccess.object();
+    if (object == Expression.THIS) {
+      fieldAccessBuilder.setThis(toProtobufThis());
+    } else if (object instanceof Expression.Variable) {
+      fieldAccessBuilder.setObject(toProtobuf((Expression.Variable) object));
+    } else {
+      fieldAccessBuilder.setClassname(toProtobuf((Expression.ClassName) object));
+    }
+    fieldAccessBuilder.setField(toProtobuf(fieldAccess.field()));
+    return fieldAccessBuilder.build();
   }
 
   private static Ucfg.Location toProtobuf(@Nullable LocationInFile locationInFile) {
@@ -175,14 +208,37 @@ public final class UCFGtoProtobuf {
     return blockBuilder;
   }
 
+  private static Expression.Variable fromProtobuf(Ucfg.Variable variable) {
+    return UCFGBuilder.variableWithId(variable.getName());
+  }
+
+  private static Expression.FieldAccess fromProtobuf(Ucfg.FieldAccess fieldAccess) {
+    Expression.Variable field = fromProtobuf(fieldAccess.getField());
+    if (fieldAccess.hasThis()) {
+      return UCFGBuilder.fieldAccess(field);
+    } else if (fieldAccess.hasClassname()) {
+      return UCFGBuilder.fieldAccess(fromProtobuf(fieldAccess.getClassname()), field);
+    }
+    return UCFGBuilder.fieldAccess(fromProtobuf(fieldAccess.getObject()), field);
+  }
+
+  private static Expression.ClassName fromProtobuf(Ucfg.ClassName className) {
+    return UCFGBuilder.clazz(className.getClassname());
+  }
+
   private static UCFGBuilder.BlockBuilder fromProtobuf(UCFGBuilder.BlockBuilder blockBuilder, Ucfg.AssignCall call) {
-    return blockBuilder.assignTo(UCFGBuilder.variableWithId(call.getVariable()),
-      UCFGBuilder.call(call.getMethodId()).withArgs(call.getArgsList().stream().map(UCFGtoProtobuf::fromProtobuf).toArray(Expression[]::new)),
-      fromProtobuf(call.getLocation()));
+    UCFGBuilder.CallBuilder callBuilder = UCFGBuilder.call(call.getMethodId()).withArgs(call.getArgsList().stream().map(UCFGtoProtobuf::fromProtobuf).toArray(Expression[]::new));
+    if (call.hasVariable()) {
+      return blockBuilder.assignTo(fromProtobuf(call.getVariable()), callBuilder, fromProtobuf(call.getLocation()));
+    }
+    return blockBuilder.assignTo(fromProtobuf(call.getFieldAccess()), callBuilder, fromProtobuf(call.getLocation()));
   }
 
   private static UCFGBuilder.BlockBuilder fromProtobuf(UCFGBuilder.BlockBuilder blockBuilder, Ucfg.NewObject newObject) {
-    return blockBuilder.newObject(UCFGBuilder.variableWithId(newObject.getVariable()), newObject.getType(), fromProtobuf(newObject.getLocation()));
+    if (newObject.hasVariable()) {
+      return blockBuilder.newObject(fromProtobuf(newObject.getVariable()), newObject.getType(), fromProtobuf(newObject.getLocation()));
+    }
+    return blockBuilder.newObject(fromProtobuf(newObject.getFieldAccess()), newObject.getType(), fromProtobuf(newObject.getLocation()));
   }
 
   private static Expression fromProtobuf(Ucfg.Expression expr) {
@@ -193,17 +249,12 @@ public final class UCFGtoProtobuf {
       return Expression.THIS;
     }
     if (expr.hasClassname()) {
-      return UCFGBuilder.clazz(expr.getClassname().getClassname());
+      return fromProtobuf(expr.getClassname());
     }
     if (expr.hasFieldAccess()) {
-      Ucfg.FieldAccess fieldAccess = expr.getFieldAccess();
-      Expression.Variable field = UCFGBuilder.variableWithId(fieldAccess.getField().getName());
-      if (fieldAccess.hasThis()) {
-        return UCFGBuilder.fieldAccess(field);
-      }
-      return UCFGBuilder.fieldAccess(UCFGBuilder.variableWithId(fieldAccess.getObject().getName()), field);
+      return fromProtobuf(expr.getFieldAccess());
     }
-    return UCFGBuilder.variableWithId(expr.getVar().getName());
+    return fromProtobuf(expr.getVar());
   }
 
   private static LocationInFile fromProtobuf(Ucfg.Location location) {

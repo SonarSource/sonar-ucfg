@@ -165,6 +165,10 @@ public interface Expression {
       this((Expression) object, field);
     }
 
+    public FieldAccess(Expression.ClassName object, Expression.Variable field) {
+      this((Expression) object, field);
+    }
+
     public Expression object() {
       return object;
     }

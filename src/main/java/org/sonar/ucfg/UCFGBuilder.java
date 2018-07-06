@@ -78,21 +78,39 @@ public class UCFGBuilder {
       return this;
     }
 
-    public BlockBuilder assignTo(Expression.Variable var, CallBuilder callBuilder) {
-      return assignTo(var, callBuilder, LOC);
+    public BlockBuilder assignTo(Expression.Variable lhs, CallBuilder callBuilder) {
+      return assignTo(lhs, callBuilder, LOC);
     }
 
-    public BlockBuilder assignTo(Expression.Variable var, CallBuilder callBuilder, LocationInFile loc) {
-      instructions.add(new UCFGElement.AssignCall(loc, var, callBuilder.methodId, callBuilder.arguments));
+    public BlockBuilder assignTo(Expression.Variable lhs, CallBuilder callBuilder, LocationInFile loc) {
+      instructions.add(new UCFGElement.AssignCall(loc, lhs, callBuilder.methodId, callBuilder.arguments));
       return this;
     }
 
-    public BlockBuilder newObject(Expression.Variable var, String instanceType) {
-      return newObject(var, instanceType, LOC);
+    public BlockBuilder assignTo(Expression.FieldAccess lhs, CallBuilder callBuilder) {
+      return assignTo(lhs, callBuilder, LOC);
     }
 
-    public BlockBuilder newObject(Expression.Variable var, String instanceType, LocationInFile loc) {
-      instructions.add(new UCFGElement.NewObject(loc, var, instanceType));
+    public BlockBuilder assignTo(Expression.FieldAccess lhs, CallBuilder callBuilder, LocationInFile loc) {
+      instructions.add(new UCFGElement.AssignCall(loc, lhs, callBuilder.methodId, callBuilder.arguments));
+      return this;
+    }
+
+    public BlockBuilder newObject(Expression.Variable lhs, String instanceType) {
+      return newObject(lhs, instanceType, LOC);
+    }
+
+    public BlockBuilder newObject(Expression.Variable lhs, String instanceType, LocationInFile loc) {
+      instructions.add(new UCFGElement.NewObject(loc, lhs, instanceType));
+      return this;
+    }
+
+    public BlockBuilder newObject(Expression.FieldAccess lhs, String instanceType) {
+      return newObject(lhs, instanceType, LOC);
+    }
+
+    public BlockBuilder newObject(Expression.FieldAccess lhs, String instanceType, LocationInFile loc) {
+      instructions.add(new UCFGElement.NewObject(loc, lhs, instanceType));
       return this;
     }
 
@@ -189,6 +207,10 @@ public class UCFGBuilder {
   }
 
   public static Expression.FieldAccess fieldAccess(Expression.Variable object, Expression.Variable field) {
+    return new Expression.FieldAccess(object, field);
+  }
+
+  public static Expression.FieldAccess fieldAccess(Expression.ClassName object, Expression.Variable field) {
     return new Expression.FieldAccess(object, field);
   }
 
