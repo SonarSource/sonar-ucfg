@@ -35,6 +35,15 @@ class ExpressionTest {
   }
 
   @Test
+  void test_variable() {
+    assertThat(new Expression.Constant("const").isVariable()).isFalse();
+    assertThat(new Expression.Variable("variable").isVariable()).isTrue();
+    assertThat(new Expression.ClassName("classname").isVariable()).isFalse();
+    assertThat(Expression.THIS.isVariable()).isFalse();
+    assertThat(new Expression.FieldAccess(new Expression.Variable("field")).isVariable()).isFalse();
+  }
+
+  @Test
   void assertEquals_hashcode() {
     Expression.Constant constant = new Expression.Constant("constant");
     Expression.Constant varConstant = new Expression.Constant("var1");

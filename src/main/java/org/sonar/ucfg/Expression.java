@@ -33,6 +33,9 @@ public interface Expression {
   default boolean isConstant(){
     return false;
   }
+  default boolean isVariable(){
+    return false;
+  }
 
   class Variable implements Expression {
     private final String id;
@@ -45,6 +48,11 @@ public interface Expression {
 
     public String id() {
       return id;
+    }
+
+    @Override
+    public boolean isVariable() {
+      return true;
     }
 
     @Override
