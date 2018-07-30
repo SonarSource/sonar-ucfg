@@ -33,9 +33,28 @@
           "type": "object",
           "properties": {
             "tag": { "enum": [ "Const" ] },
-            "constVal": { "type": "string" }
+            "constValue": { "type": "string" }
           },
-          "required": ["tag","constVal"]
+          "required": ["tag","constValue"]
+        },
+        {
+          "title": "field_access",
+          "type": "object",
+          "properties": {
+            "tag": { "enum": [ "FieldAccess" ] },
+            "fieldAccessObject": { "type": "object" },
+            "fieldAccessField": { "type": "object" }
+          },
+          "required": ["tag","fieldAccessField"]
+        },
+        {
+          "title": "class_name",
+          "type": "object",
+          "properties": {
+            "tag": { "enum": [ "ClassName" ] },
+            "classNameType": { "type": "string" }
+          },
+          "required": ["tag","classNameType"]
         }
       ]
     },
@@ -72,16 +91,33 @@
       "id": "instruction",
       "description": "Instructions in the Universal CFG",
       "type": "object",
-      "properties": {
-        "instrLoc": { "$ref": "#/definitions/location" },
-        "instrLhs": { "type": "object" },
-        "instrMeth": { "type": "string" },
-        "instrArgs": {
-          "type": "array",
-          "items": { "allOf" : [ { "$ref": "#/definitions/expression" } ] }
+      "oneOf": [
+        {
+          "title": "call",
+          "type": "object",
+          "properties": {
+            "instrLoc": { "$ref": "#/definitions/location" },
+            "instrLhs": { "type": "object" },
+            "instrMeth": { "type": "string" },
+            "instrArgs": {
+              "type": "array",
+              "items": { "allOf" : [ { "$ref": "#/definitions/expression" } ] }
+            }
+          },
+          "required": ["instrLoc","instrLhs","instrMeth","instrArgs"]
+        },
+        {
+          "title": "new_object",
+          "type": "object",
+          "properties": {
+            "tag": { "enum": ["NewObject"] },
+            "newObjectLoc": { "$ref": "#/definitions/location" },
+            "newObjectLhs": { "$ref": "#/definitions/expression" },
+            "newObjectType": { "type": "string" }
+          },
+          "required": ["tag","newObjectLoc","newObjectLhs", "newObjectType"]
         }
-      },
-      "required": ["instrLoc","instrLhs","instrMeth","instrArgs"]
+      ]
     },
     "basicblock": {
       "id": "basicblock",

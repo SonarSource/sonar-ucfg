@@ -49,7 +49,9 @@
         "tag": "Jump",
         "jumpDest": [
           "2",
-          "3"
+          "3",
+          "4",
+          "5"
         ]
       }
     },
@@ -142,6 +144,130 @@
         "retExpr": {
           "tag": "Var",
           "varName": "var3"
+        }
+      }
+    },
+    {
+      "bbId": "4",
+      "bbLoc": {
+        "locFileId": "__unknown_file",
+        "locStartLine": 1,
+        "locStartLineOffset": 1,
+        "locEndLine": 1,
+        "locEndLineOffset": 1
+      },
+      "bbInstr": [
+        {
+          "instrLoc": {
+            "locFileId": "__unknown_file",
+            "locStartLine": 1,
+            "locStartLineOffset": 1,
+            "locEndLine": 1,
+            "locEndLineOffset": 1
+          },
+          "instrLhs": {
+            "tag": "FieldAccess",
+            "fieldAccessField": {
+              "tag": "Var",
+              "varName": "var4"
+            }
+          },
+          "instrMeth": "__id",
+          "instrArgs": [
+            {
+              "tag": "FieldAccess",
+              "fieldAccessObject": {
+                "tag": "ClassName",
+                "classNameType": "org.foo.A"
+              },
+              "fieldAccessField": {
+                "tag": "Var",
+                "varName": "field"
+              }
+            }
+          ]
+        }
+      ],
+      "bbTerm": {
+        "tag": "Ret",
+        "retLoc": {
+          "locFileId": "fileKey",
+          "locStartLine": 3,
+          "locStartLineOffset": 2,
+          "locEndLine": 3,
+          "locEndLineOffset": 10
+        },
+        "retExpr": {
+          "tag": "FieldAccess",
+          "fieldAccessObject": {
+            "tag": "Var",
+            "varName": "target"
+          },
+          "fieldAccessField": {
+            "tag": "Var",
+            "varName": "var4"
+          }
+        }
+      }
+    },
+    {
+      "bbId": "5",
+      "bbLoc": {
+        "locFileId": "__unknown_file",
+        "locStartLine": 1,
+        "locStartLineOffset": 1,
+        "locEndLine": 1,
+        "locEndLineOffset": 1
+      },
+      "bbInstr": [
+        {
+          "tag": "NewObject",
+          "newObjectLoc": {
+            "locFileId": "__unknown_file",
+            "locStartLine": 1,
+            "locStartLineOffset": 1,
+            "locEndLine": 1,
+            "locEndLineOffset": 1
+          },
+          "newObjectLhs": {
+            "tag": "Var",
+            "varName": "var5"
+          },
+          "newObjectType": "org.foo.A"
+        },
+        {
+          "instrLoc": {
+            "locFileId": "__unknown_file",
+            "locStartLine": 1,
+            "locStartLineOffset": 1,
+            "locEndLine": 1,
+            "locEndLineOffset": 1
+          },
+          "instrLhs": {
+            "tag": "Var",
+            "varName": "var5"
+          },
+          "instrMeth": "org.foo.A#init()V",
+          "instrArgs": [
+            {
+              "tag": "Var",
+              "varName": "var5"
+            }
+          ]
+        }
+      ],
+      "bbTerm": {
+        "tag": "Ret",
+        "retLoc": {
+          "locFileId": "fileKey",
+          "locStartLine": 4,
+          "locStartLineOffset": 2,
+          "locEndLine": 4,
+          "locEndLineOffset": 10
+        },
+        "retExpr": {
+          "tag": "Const",
+          "constValue": "\"This is the end; My only friend; The end\""
         }
       }
     }
