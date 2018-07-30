@@ -40,10 +40,13 @@ public final class UCFGtoJson {
     gson.registerTypeAdapter(Label.class, new LabelSerializer());
     gson.registerTypeAdapter(Expression.Variable.class, new VariableSerializer());
     gson.registerTypeAdapter(Expression.Constant.class, new ConstantSerializer());
+    gson.registerTypeAdapter(Expression.FieldAccess.class, new FieldAccessSerializer());
+    gson.registerTypeAdapter(Expression.ClassName.class, new ClassNameSerializer());
     gson.registerTypeAdapter(BasicBlock.class, new BasicBlockSerializer());
     gson.registerTypeAdapter(UCFGElement.AssignCall.class, new AssignCallSerializer());
     gson.registerTypeAdapter(UCFGElement.Ret.class, new ReturnSerializer());
     gson.registerTypeAdapter(UCFGElement.Jump.class, new JumpSerializer());
+    gson.registerTypeAdapter(UCFGElement.NewObject.class, new NewObjectSerializer());
     gson.registerTypeAdapter(LocationInFile.class, new LocationSerializer());
 
     return gson.create().toJson(ucfg);
@@ -78,6 +81,28 @@ public final class UCFGtoJson {
       return jsonObject;
     }
   }
+
+  private static class FieldAccessSerializer implements JsonSerializer<Expression.FieldAccess> {
+    @Override
+    public JsonElement serialize(Expression.FieldAccess src, Type typeOfSrc, JsonSerializationContext context) {
+      JsonObject jsonObject = new JsonObject();
+      jsonObject.addProperty("tag", "FieldAccess");
+      jsonObject.add("fieldAccessObject", context.serialize(src.object()));
+      jsonObject.add("fieldAccessField", context.serialize(src.field()));
+      return jsonObject;
+    }
+  }
+
+  private static class ClassNameSerializer implements JsonSerializer<Expression.ClassName> {
+    @Override
+    public JsonElement serialize(Expression.ClassName src, Type typeOfSrc, JsonSerializationContext context) {
+      JsonObject jsonObject = new JsonObject();
+      jsonObject.addProperty("tag", "ClassName");
+      jsonObject.addProperty("classNameType", src.typeName());
+      return jsonObject;
+    }
+  }
+
   private static class ConstantSerializer implements JsonSerializer<Expression.Constant> {
     @Override
     public JsonElement serialize(Expression.Constant src, Type typeOfSrc, JsonSerializationContext context) {
@@ -108,6 +133,18 @@ public final class UCFGtoJson {
       jsonObject.add("instrLhs", context.serialize(src.getLhs()));
       jsonObject.add("instrMeth", context.serialize(src.getMethodId()));
       jsonObject.add("instrArgs", context.serialize(src.getArgExpressions()));
+      return jsonObject;
+    }
+  }
+
+  private static class NewObjectSerializer implements JsonSerializer<UCFGElement.NewObject> {
+    @Override
+    public JsonElement serialize(UCFGElement.NewObject src, Type typeOfSrc, JsonSerializationContext context) {
+      JsonObject jsonObject = new JsonObject();
+      jsonObject.addProperty("tag", "NewObject");
+      jsonObject.add("newObjectLoc", context.serialize(src.location()));
+      jsonObject.add("newObjectLhs", context.serialize(src.getLhs()));
+      jsonObject.addProperty("newObjectType", src.instanceType());
       return jsonObject;
     }
   }

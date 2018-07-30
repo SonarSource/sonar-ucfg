@@ -32,12 +32,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
-import static org.sonar.ucfg.UCFGBuilder.newBasicBlock;
-import static org.sonar.ucfg.UCFGBuilder.variableWithId;
 import static java.lang.reflect.Modifier.isFinal;
 import static java.lang.reflect.Modifier.isPrivate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.sonar.ucfg.UCFGBuilder.clazz;
+import static org.sonar.ucfg.UCFGBuilder.constant;
+import static org.sonar.ucfg.UCFGBuilder.fieldAccess;
+import static org.sonar.ucfg.UCFGBuilder.newBasicBlock;
+import static org.sonar.ucfg.UCFGBuilder.variableWithId;
 
 class UCFGtoJsonTest {
   @Test
@@ -46,13 +49,20 @@ class UCFGtoJsonTest {
     UCFG ucfg = UCFGBuilder.createUCFGForMethod("A#method(Ljava/lang/String;)Ljava/lang/String;").addMethodParam(arg)
       .addStartingBlock(newBasicBlock("1")
         .assignTo(variableWithId("var1"), UCFGBuilder.call("fun").withArgs(arg))
-        .jumpTo(UCFGBuilder.createLabel("2"), UCFGBuilder.createLabel("3")))
+        .jumpTo(UCFGBuilder.createLabel("2"), UCFGBuilder.createLabel("3"), UCFGBuilder.createLabel("4"), UCFGBuilder.createLabel("5")))
       .addBasicBlock(newBasicBlock("2")
         .assignTo(variableWithId("var2"), UCFGBuilder.call("fun").withArgs(arg))
         .ret(arg))
       .addBasicBlock(newBasicBlock("3")
         .assignTo(variableWithId("var3"), UCFGBuilder.call("fun").withArgs(arg))
         .ret(variableWithId("var3"), new LocationInFile("fileKey", 2, 2, 2, 10)))
+      .addBasicBlock(newBasicBlock("4")
+        .assignTo(fieldAccess(variableWithId("var4")), UCFGBuilder.call("__id").withArgs(fieldAccess(clazz("org.foo.A"), variableWithId("field"))))
+        .ret(fieldAccess(variableWithId("target"), variableWithId("var4")), new LocationInFile("fileKey", 3, 2, 3, 10)))
+      .addBasicBlock(newBasicBlock("5")
+        .newObject(variableWithId("var5"), "org.foo.A")
+        .assignTo(variableWithId("var5"), UCFGBuilder.call("org.foo.A#init()V").withArgs(variableWithId("var5")))
+        .ret(constant("This is the end; My only friend; The end"), new LocationInFile("fileKey", 4, 2, 4, 10)))
       .build();
     String jsonString = UCFGtoJson.toJson(ucfg);
     validateJsonString(jsonString);
