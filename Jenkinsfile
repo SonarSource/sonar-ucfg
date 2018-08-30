@@ -12,11 +12,11 @@ pipeline {
   stages {
     stage('QA') {
       steps {
-        burgrNotifyQaStarted()
+        sendAllNotificationQaStarted()
       }
       post {
         always {
-          burgrNotifyQaResult()
+          sendAllNotificationQaResult()
         }
       }
     }
@@ -26,7 +26,7 @@ pipeline {
       }
       post {
         always {
-          burgrNotifyPromote()
+          sendAllNotificationPromote()
         }
       }
     }
