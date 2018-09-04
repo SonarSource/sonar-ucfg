@@ -49,6 +49,8 @@
     <protobuf.version>3.5.1</protobuf.version>
     <junit5.version>5.1.0</junit5.version>
     <junit.platform.version>1.1.0</junit.platform.version>
+     <!-- ucfg transfered into sonar-security project -->
+    <sonar.cpd.exclusions>src/**/*</sonar.cpd.exclusions>
   </properties>
 
   <dependencies>
